@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<!-- See license.txt for terms of usage -->
+
+<?xml-stylesheet href="chrome://netexport/skin/netExport.css"?>
+
+<overlay xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"> 
+    <script src="chrome://netexport/content/json2.js" type="application/x-javascript"/>
+    <script src="chrome://netexport/content/netExport.js" type="application/x-javascript"/>
+    <script src="chrome://netexport/content/exporter.js" type="application/x-javascript"/>
+    <script src="chrome://netexport/content/harBuilder.js" type="application/x-javascript"/>
+    <script src="chrome://netexport/content/automation.js" type="application/x-javascript"/>
+    <script src="chrome://netexport/content/pageLoader.js" type="application/x-javascript"/>
+    <script src="chrome://netexport/content/harUploader.js" type="application/x-javascript"/>
+
+    <commandset id="mainCommandSet">
+        <command id="cmd_netExport" oncommand="Firebug.NetExport.exportData(FirebugContext)"/>
+        <command id="cmd_netImport" oncommand="Firebug.NetExport.importData(FirebugContext)"/>
+        <command id="cmd_netExportAuto" oncommand="Firebug.NetExport.toggleAutoExport(FirebugContext)"/>
+        <command id="cmd_netExportSendTo" oncommand="Firebug.NetExport.sendTo(FirebugContext)"/>
+    </commandset>
+
+    <toolbar id="fbToolbar" align="center" role="toolbar">
+        <hbox id="fbToolbarInner" insertbefore="fbDetachButton" flex="1" align="center">
+            <hbox id="fbNetButtons" collapsed="true">
+                <hbox id="fbNetButtonsFilter" class="noTabStop">
+
+                    <!-- Export Net panel data as HAR -->
+                    <toolbarbutton id="netExport"
+                        class="toolbar-text-button fbmenubutton"
+                        insertbefore="fbNetFilter-all"
+                        label="netexport.button.label.Export"
+                        tooltiptext="netexport.button.tooltip.Export HTTP Tracing"
+                        type="menu"
+                        onpopupshowing="return Firebug.NetExport.onMenuShowing(this);">
+                        <menupopup>
+                            <menuitem id="netExportSaveAs" command="cmd_netExport"
+                                label="netexport.button.label.Save As"
+                                tooltiptext="netexport.button.tooltip.Save As"/>
+                            <menuitem id="netExportSendTo" collapsed="true"
+                                label="netexport.menu.label.Send To"
+                                tooltiptext="netexport.menu.tooltip.Send To"
+                                command="cmd_netExportSendTo" />
+                            <menuseparator id="netExportSendToSeparator" collapsed="true"/>
+
+                            <!-- Options -->
+                            <menu id="netExportOptions" label="netexport.menu.label.Options">
+                                <menupopup onpopupshowing="return Firebug.NetExport.onOptionsShowing(this);">
+                                    <menuitem id="netExportCompress" type="checkbox"
+                                        label="netexport.menu.label.Compress"
+                                        tooltiptext="netexport.menu.tooltip.Compress"
+                                        oncommand="Firebug.NetExport.onToggleOption(event, this)"
+                                        option="netexport.compress" />
+                                    <menuitem id="netExportShowPreview" type="checkbox"
+                                        label="netexport.menu.label.Show Preview"
+                                        tooltiptext="netexport.menu.tooltip.Show Preview"
+                                        oncommand="Firebug.NetExport.onToggleOption(event, this)"
+                                        option="netexport.showPreview" />
+                                    <menuseparator />
+                                    <menuitem id="netExportLogDir"
+                                        label="netexport.menu.label.Default Log Directory"
+                                        tooltiptext="netexport.menu.tooltip.Default Log Directory"
+                                        oncommand="Firebug.NetExport.Logger.onDefaultLogDirectory(event)" />
+                               </menupopup>
+                            </menu>
+                            <menuseparator id="netExportOptionsSeparator" />
+
+                            <!--<menuitem id="netRunPageSuite"
+                                label="netexport.menu.label.Run Automated Loads"
+                                tooltiptext="netexport.menu.tooltip.Run Automated Loads"
+                                oncommand="Firebug.NetExport.onRunPageSuite(event)" />
+                            <menuseparator />-->
+
+                            <menuitem id="netExportHelp"
+                                label="netexport.menu.label.Help"
+                                tooltiptext="netexport.menu.tooltip.Help"
+                                oncommand="Firebug.NetExport.onHelp(event)" />
+                            <menuitem id="netExportAbout"
+                                label="netexport.menu.label.About"
+                                tooltiptext="netexport.menu.tooltip.About"
+                                oncommand="Firebug.NetExport.onAbout(event, FirebugContext)" />
+                        </menupopup>
+                    </toolbarbutton>
+
+                    <!-- Template for Upload progress metter. -->
+                    <progressmeter id="netExportUploadProgressTempl"
+                        class="netExportUploadProgress"
+                        mode="determined" value="0" collapsed="true" />
+
+                    <!-- Import xxxHonza: TODO
+                        <toolbarbutton label="Import" class="toolbar-text-button"
+                        insertbefore="fbNetFilter-all"
+                        tooltiptext="Import HTTP Tracing" command="cmd_netImport"/>-->
+
+                    <!-- Export Automation -->
+                    <toolbarbutton id="netExportAuto" command="cmd_netExportAuto"
+                        insertbefore="fbNetFilter-all"
+                        tooltiptext="netexport.menu.tooltip.Activate Auto Export" />
+                    <toolbarseparator insertbefore="fbNetFilter-all"/>
+                </hbox>
+            </hbox>
+        </hbox>
+    </toolbar>
+
+    <popupset id="mainPopupSet">
+        <popup id="netExportUploadAbort" />
+    </popupset>
+</overlay>

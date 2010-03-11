@@ -1,0 +1,32 @@
+/* Customiztion for FBTraceConsole */ 
+.DBG_NETEXPORT {
+    color: rgb(122, 51, 115);
+}
+
+/********************************************************************************/
+
+#netExportAuto {
+    list-style-image: url(chrome://netexport/skin/autoexport-regular.png);
+}
+
+#netExportAuto:hover {
+    list-style-image: url(chrome://netexport/skin/autoexport-hover.png);
+}
+
+#netExportAuto[state="active"] {
+    list-style-image: url(chrome://netexport/skin/autoexport-active.png);
+}
+
+#netExportAuto[state="inprogress"] {
+    list-style-image: url(chrome://netexport/skin/autoexport-animated.png);
+}
+
+/********************************************************************************/
+
+.netExportUploadProgress {
+    min-width: 30px;
+    min-height: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    border: 0px;
+}

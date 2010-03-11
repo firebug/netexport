@@ -1,0 +1,5 @@
+content netexport  chrome/content/netexport/
+skin    netexport  classic/1.0    chrome/skin/classic/
+locale  netexport  en-US          chrome/locale/en-US/
+
+overlay chrome://firebug/content/firebugOverlay.xul         chrome://netexport/content/netExport.xul
