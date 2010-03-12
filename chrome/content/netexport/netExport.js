@@ -6,6 +6,8 @@ const Cc = Components.classes;
 const Ci = Components.interfaces;
 
 const extensionManager = CCSV("@mozilla.org/extensions/manager;1", "nsIExtensionManager");
+const clipboard = CCSV("@mozilla.org/widget/clipboard;1", "nsIClipboard");
+const clipboardHelper = CCSV("@mozilla.org/widget/clipboardhelper;1", "nsIClipboardHelper");
 
 var prefDomain = "extensions.firebug.netexport";
 
@@ -43,7 +45,7 @@ Firebug.NetExport = extend(Firebug.Module,
         var elements = ["netExport", "netExportCompress", "netExportAuto",
             "netExportOptions", "netExportLogDir", "netExportHelp",
             "netExportAbout", "netExportShowPreview", "netRunPageSuite",
-            "netExportSaveAs"];
+            "netExportSaveAs", "netExportScreenCopy"];
 
         for (var i=0; i<elements.length; i++)
         {
@@ -70,18 +72,11 @@ Firebug.NetExport = extend(Firebug.Module,
             var host = uri.host;
 
             var menuItem = $("netExportSendTo");
-            var menuSeparator = $("netExportSendToSeparator");
 
             if (serverURL)
-            {
                 menuItem.removeAttribute("collapsed");
-                menuSeparator.removeAttribute("collapsed");
-            }
             else
-            {
                 menuItem.setAttribute("collapsed");
-                menuSeparator.setAttribute("collapsed");
-            }
 
             // Update label & tooltip so it displayes the URL.
             menuItem.setAttribute("label", $STR("netexport.menu.label.Send To") + " " + host);
@@ -116,6 +111,11 @@ Firebug.NetExport = extend(Firebug.Module,
     sendTo: function(context)
     {
         Firebug.NetExport.HARUploader.upload(context);
+    },
+
+    screenCopy: function(context)
+    {
+        Firebug.NetExport.NetPanelScreenCopier.copyToClipboard(context);
     },
 
     // Options
@@ -186,12 +186,83 @@ Firebug.NetExport = extend(Firebug.Module,
 
 // ************************************************************************************************
 
+Firebug.NetExport.NetPanelScreenCopier =
+{
+    copyToClipboard: function(context)
+    {
+        try
+        {
+            var win = $("fbPanelBar1").browser.contentWindow;
+
+            //var netPanel = context.getPanel("net");
+            //var height = netPanel.panelNode.scrollHeight;
+            //var width = netPanel.panelNode.scrollWidth;
+
+            var height = win.innerHeight;
+            var width = win.innerWidth;
+
+            var canvas = this.getCanvasFromWindow(win, width, height);
+            var image = window.content.document.createElement("img");
+            image.setAttribute("style", "display: none");
+            image.setAttribute("id", "screengrab_buffer");
+            image.setAttribute("src", canvas.toDataURL("image/png", ""));
+
+            var body = window.content.document.getElementsByTagName("html")[0];
+            body.appendChild(image);
+            setTimeout(this.copyImage(image, body, document), 200);
+        }
+        catch (err)
+        {
+            if (FBTrace.DBG_NETEXPORT || FBTrace.DBG_ERRORS)
+                FBTrace.sysout("netexport.copyToClipboard; EXCEPTION",err);
+        }
+    },
+
+    copyImage : function(image, body, documenty)
+    {
+        return function ()
+        {
+            documenty.popupNode = image;
+            try {
+                goDoCommand("cmd_copyImageContents");
+            } catch (ex) {
+                alert(ex);
+            }
+            body.removeChild(image);
+        };
+    },
+
+    getCanvasFromWindow: function(win, width, height)
+    {
+        var canvas = this.createCanvas(win, width, height);
+        var ctx = canvas.getContext("2d");
+        ctx.clearRect(0, 0, width, height);
+        ctx.save();
+        ctx.scale(1, 1);
+        ctx.drawWindow(win, 0, 0, width, height, "rgb(255,255,255)");
+        ctx.restore();
+        return canvas;
+    },
+
+    createCanvas: function(win, width, height)
+    {
+        var canvas = win.document.createElement("canvas");
+        canvas.style.width = width + "px";
+        canvas.style.height = height + "px";
+        canvas.width = width;
+        canvas.height = height;
+        return canvas;
+    }
+};
+
+// ************************************************************************************************
+
 Firebug.NetExport.TraceListener =
 {
     onLoadConsole: function(win, rootNode)
     {
         var doc = rootNode.ownerDocument;
-        var styleSheet = createStyleSheet(doc, 
+        var styleSheet = createStyleSheet(doc,
             "chrome://netexport/skin/netExport.css");
         styleSheet.setAttribute("id", "netExportLogs");
         addStyleSheet(doc, styleSheet);
@@ -220,9 +291,9 @@ Firebug.NetExport.safeGetWindowLocation = function(win)
 
         if ("location" in win)
         {
-            if (typeof(win.location) == 'object' && "toString" in win.location)
+            if (typeof(win.location) == "object" && "toString" in win.location)
                 return win.location;
-            else if (typeof (win.location) == 'string' )
+            else if (typeof (win.location) == "string")
                 return win.location;
         }
     }

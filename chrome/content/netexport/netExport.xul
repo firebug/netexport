@@ -17,6 +17,7 @@
         <command id="cmd_netImport" oncommand="Firebug.NetExport.importData(FirebugContext)"/>
         <command id="cmd_netExportAuto" oncommand="Firebug.NetExport.toggleAutoExport(FirebugContext)"/>
         <command id="cmd_netExportSendTo" oncommand="Firebug.NetExport.sendTo(FirebugContext)"/>
+        <command id="cmd_netExportScreenCopy" oncommand="Firebug.NetExport.screenCopy(FirebugContext)"/>
     </commandset>
 
     <toolbar id="fbToolbar" align="center" role="toolbar">
@@ -33,6 +34,8 @@
                         type="menu"
                         onpopupshowing="return Firebug.NetExport.onMenuShowing(this);">
                         <menupopup>
+
+                            <!-- Various exports -->
                             <menuitem id="netExportSaveAs" command="cmd_netExport"
                                 label="netexport.button.label.Save As"
                                 tooltiptext="netexport.button.tooltip.Save As"/>
@@ -40,7 +43,14 @@
                                 label="netexport.menu.label.Send To"
                                 tooltiptext="netexport.menu.tooltip.Send To"
                                 command="cmd_netExportSendTo" />
-                            <menuseparator id="netExportSendToSeparator" collapsed="true"/>
+                            <menuseparator id="netExportSeparator"/>
+
+                            <!-- Net panel content screen copy -->
+                            <menuitem id="netExportScreenCopy"
+                                label="netexport.menu.label.Copy As Image"
+                                tooltiptext="netexport.menu.tooltip.Copy As Image"
+                                command="cmd_netExportScreenCopy" />
+                            <menuseparator />
 
                             <!-- Options -->
                             <menu id="netExportOptions" label="netexport.menu.label.Options">
