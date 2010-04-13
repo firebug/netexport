@@ -31,7 +31,7 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
     // Make sure the Auto Export button is properly updated withing the Net panel.
     showPanel: function(browser, panel)
     {
-        if (panel.name == "net")
+        if (panel && panel.name == "net")
             this.updateUI();
     },
 
