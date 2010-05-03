@@ -349,7 +349,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
 
     onPageLoaded: function(win)
     {
-        dispatch("onPageLoaded", [win]);
+        dispatch(this.fbListeners, "onPageLoaded", [win]);
     }
 });
 
