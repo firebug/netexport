@@ -152,8 +152,11 @@ Firebug.NetExport.PageLoadObserver.prototype =
             FBTrace.sysout("netexport.PageObserver; Looks like this could be the last response: " +
                 safeGetRequestName(request));
 
-        // Wait yet a little bit to catch even delayed XHR.
-        this.timeout = setTimeout(bindFixed(this.onPageLoaded, this), 1500);
+        // Wait yet a little bit to catch even delayed XHR. The delay the autoexport
+        // feature waits whether there is another request is customizable through
+        // preferences. See: extensions.firebug.netexport.pageLoadedTimeout
+        var timeout = Firebug.getPref(prefDomain, "pageLoadedTimeout");
+        this.timeout = setTimeout(bindFixed(this.onPageLoaded, this), timeout);
     },
 
     onPageLoaded: function()
