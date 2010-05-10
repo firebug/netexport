@@ -110,7 +110,8 @@ Firebug.NetExport = extend(Firebug.Module,
 
     sendTo: function(context)
     {
-        Firebug.NetExport.HARUploader.upload(context);
+        // Send HAR beacon to the server (context, display confirmation, asynchronously).
+        Firebug.NetExport.HARUploader.upload(context, true, true);
     },
 
     screenCopy: function(context)

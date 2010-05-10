@@ -14,7 +14,7 @@ var sendToConfirmation = "sendToConfirmation";
 
 Firebug.NetExport.HARUploader =
 {
-    upload: function(context)
+    upload: function(context, confirm, async, jsonString)
     {
         try
         {
@@ -22,7 +22,7 @@ Firebug.NetExport.HARUploader =
             if (!serverURL)
                 return;
 
-            if (Firebug.getPref(prefDomain, sendToConfirmation))
+            if (confirm && Firebug.getPref(prefDomain, sendToConfirmation))
             {
                 var uri = makeURI(serverURL);
                 var msg = $STR("netexport.sendTo.confirm.msg");
@@ -38,7 +38,9 @@ Firebug.NetExport.HARUploader =
                 Firebug.setPref(prefDomain, sendToConfirmation, !check.value)
             }
 
-            var jsonString = Firebug.NetExport.Exporter.buildData(context);
+            if (!jsonString)
+                jsonString = Firebug.NetExport.Exporter.buildData(context);
+
             if (!jsonString)
                 return;
 
@@ -49,7 +51,7 @@ Firebug.NetExport.HARUploader =
                 FBTrace.sysout("netexport.upload; " + serverURL);
 
             // The instance is associated with the progress meter, which is removed at the end.
-            var uploader = new Uploader(serverURL, pageURL);
+            var uploader = new Uploader(serverURL, pageURL, async);
             uploader.start(jsonString);
         }
         catch (e)
@@ -62,12 +64,13 @@ Firebug.NetExport.HARUploader =
 
 // ************************************************************************************************
 
-function Uploader(serverURL, pageURL)
+function Uploader(serverURL, pageURL, async)
 {
     this.serverURL = serverURL;
     this.pageURL = pageURL;
     this.request = null;
     this.progress = null;
+    this.async = async;
 }
 
 Uploader.prototype =
@@ -77,7 +80,7 @@ Uploader.prototype =
         this.request = CCIN("@mozilla.org/xmlextras/xmlhttprequest;1", "nsIXMLHttpRequest");
         this.request.upload.onprogress = bind(this.onUploadProgress, this);
 
-        this.request.open("POST", this.serverURL, true);
+        this.request.open("POST", this.serverURL, this.async);
         this.request.setRequestHeader("Content-Type", "x-application/har+json");
         this.request.setRequestHeader("Content-Length", jsonString.length);
 
@@ -89,6 +92,9 @@ Uploader.prototype =
         this.progress.repObject = this;
 
         this.request.send(jsonString);
+
+        if (FBTrace.DBG_NETEXPORT)
+            FBTrace.sysout("netexport.uploader.start; Request sent to: " + this.serverURL);
     },
 
     createProgresMeter: function()
@@ -143,7 +149,7 @@ Uploader.prototype =
         this.progress.parentNode.removeChild(this.progress);
 
         if (FBTrace.DBG_NETEXPORT)
-            FBTrace.sysout("netexport.uploader; ABORTED " + this.serverURL + " " +
+            FBTrace.sysout("netexport.uploader.onAbort; ABORTED " + this.serverURL + " " +
                 event.target.status, event);
     },
 
@@ -165,6 +171,7 @@ Uploader.prototype =
         // Remove progress bar from the UI.
         this.progress.parentNode.removeChild(this.progress);
 
+        // If show preview is on, open the server page with details.
         if (!Firebug.getPref(prefDomain, "showPreview"))
             return;
 
@@ -172,7 +179,8 @@ Uploader.prototype =
         if (index < 0)
         {
             if (FBTrace.DBG_NETEXPORT || FBTrace.DBG_ERRORS)
-                FBTrace.sysout("netexport.uploader; ERROR wrong Beacon server: " + this.serverURL);
+                FBTrace.sysout("netexport.uploader.onFinished; ERROR wrong Beacon server: " +
+                    this.serverURL);
             return;
         }
 
@@ -185,7 +193,8 @@ Uploader.prototype =
         showSlowURL += "details/?url=" + this.pageURL;
 
         if (FBTrace.DBG_NETEXPORT)
-            FBTrace.sysout("netexport.uploader; HAR Beacon sent, open Beacon server: " + showSlowURL);
+            FBTrace.sysout("netexport.uploader.onFinished; HAR Beacon sent, open Beacon server: " +
+                showSlowURL);
 
         gBrowser.selectedTab = gBrowser.addTab(showSlowURL);
     },
@@ -199,7 +208,7 @@ Uploader.prototype =
         this.progress.parentNode.removeChild(this.progress);
 
         if (FBTrace.DBG_NETEXPORT || FBTrace.DBG_ERRORS)
-            FBTrace.sysout("netexport.uploader; ERROR " + this.serverURL + " " +
+            FBTrace.sysout("netexport.uploader.onError; ERROR " + this.serverURL + " " +
                 event.target.status, event);
 
         alert("Error: " + event.target.status);

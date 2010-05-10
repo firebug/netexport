@@ -29,7 +29,17 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
 
     initialize: function(owner)
     {
+        // Register as a listener into the http-observer in order to handle
+        // onPageLoaded events. These are fired only if the auto-export feature
+        // is activated.
         HttpObserver.addListener(this);
+
+        // Activate auto-export automatically if the preference says so.
+        if (Firebug.getPref(prefDomain, "alwaysEnableAutoExport"))
+        {
+            if (!this.isActive())
+                this.activate();
+        }
     },
 
     shutdown: function()
@@ -98,6 +108,19 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
             return;
         }
 
+        var jsonString = Firebug.NetExport.Exporter.buildData(context, true);
+
+        // Store collected data into a HAR file (within default directory).
+        if (Firebug.getPref(prefDomain, "autoExportToFile"))
+            this.exportToFile(win, jsonString, context);
+
+        // Send collected data to the server.
+        if (Firebug.getPref(prefDomain, "autoExportToServer"))
+            Firebug.NetExport.HARUploader.upload(context, false, false, jsonString);
+    },
+
+    exportToFile: function(win, jsonString, context)
+    {
         var file = Logger.getDefaultFolder();
         var now = new Date();
 
@@ -125,7 +148,6 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
         var filePath = file.path;
 
         // Export data from the current context.
-        var jsonString = Firebug.NetExport.Exporter.buildData(context, true);
         Firebug.NetExport.Exporter.saveToFile(file, jsonString, context);
 
         if (FBTrace.DBG_NETEXPORT)
