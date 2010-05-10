@@ -13,7 +13,16 @@ var prefDomain = "extensions.firebug.netexport";
 // ************************************************************************************************
 // Controller for automatic export.
 
+/**
+ * @class This object manages <i>Auto Export<i> functionality. This features is activated by
+ * calling <i>activate</i> method and deactivated by calling <i>deactivate</i> method.
+ * 
+ * When Auto Export is activated a {@link Firebug.NetExport.HttpObserver} is registered.
+ * When deactivated the {@link Firebug.NetExport.HttpObserver} is unregistered.
+ * As soon as a page (top level window) is loaded, onPageLoaded (method of this object is called).
+ */
 Firebug.NetExport.Automation = extend(Firebug.Module,
+/** @lends Firebug.NetExport.Automation */
 {
     active: false,
     logFolder: null,
@@ -126,6 +135,15 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
 
 // ************************************************************************************************
 
+/**
+ * @class This object is created for a top level window that is being loaded. All requests
+ * are collected in an internal array and removed when proper response is received.
+ * As soon as the requests list is empty again, the object waits for specified
+ * amount of time (see: extensions.firebug.netexport.pageLoadedTimeout) and if no request
+ * is made during this period the page is declared to be loaded.
+ * 
+ * @param {Object} win The monitored window.
+ */
 Firebug.NetExport.PageLoadObserver = function(win)
 {
     this.window = win;
@@ -133,6 +151,7 @@ Firebug.NetExport.PageLoadObserver = function(win)
 }
 
 Firebug.NetExport.PageLoadObserver.prototype =
+/** @lends Firebug.NetExport.PageLoadObserver */
 {
     addRequest: function(request)
     {
@@ -170,13 +189,20 @@ Firebug.NetExport.PageLoadObserver.prototype =
     {
         clearTimeout(this.timeout);
         delete this.timeout;
-    }
+    },
 };
 
 // ************************************************************************************************
 // HTTP Observer
 
+/**
+ * @class This object utilizes "@joehewitt.com/firebug-http-observer;1" to watch all requests made
+ * by a page (top level window). As soon as the first document "http-on-modify-request" is sent by
+ * the top level window, a {@link Firebug.NetExport.PageLoadObserver} object is instanciated (for
+ * that window) and all requests/responses forwarded to it.
+ */
 Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
+/** @lends Firebug.NetExport.HttpObserver */
 {
     registered: false,
     pageObservers: {},
@@ -249,6 +275,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
             request.loadGroup && request.loadGroup.groupObserver &&
             win == win.parent && !isRedirect)
         {
+            // The page observer is always created for the top level window.
             this.addPageObserver(win);
         }
 
