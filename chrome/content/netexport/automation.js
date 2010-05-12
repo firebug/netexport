@@ -227,7 +227,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
 /** @lends Firebug.NetExport.HttpObserver */
 {
     registered: false,
-    pageObservers: {},
+    pageObservers: [],
 
     register: function()
     {
@@ -323,7 +323,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
     // Page load observers
     addPageObserver: function(win)
     {
-        var observer = this.pageObservers[win];
+        var observer = this.getPageObserver(win);
         if (observer)
         {
             if (FBTrace.DBG_NETEXPORT)
@@ -339,12 +339,22 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
             FBTrace.sysout("netexport.Automation; Page load observer created for: " +
                 safeGetWindowLocation(win));
 
-        this.pageObservers[win] = new PageLoadObserver(win);
+        this.pageObservers.push(new PageLoadObserver(win));
+    },
+
+    getPageObserver: function(win)
+    {
+        for (var i=0; i<this.pageObservers.length; i++)
+        {
+            var observer = this.pageObservers[i];
+            if (win == this.pageObservers[i].window)
+                return observer;
+        }
     },
 
     removePageObserver: function(win)
     {
-        var pageObserver = this.pageObservers[win];
+        var pageObserver = this.getPageObserver(win);
         if (!pageObserver)
         {
             if (FBTrace.DBG_NETEXPORT)
@@ -354,7 +364,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
         }
 
         pageObserver.destroy();
-        delete this.pageObservers[win];
+        remove(this.pageObservers, pageObserver);
 
         if (FBTrace.DBG_NETEXPORT)
             FBTrace.sysout("netexport.Automation; Page load observer removed for: " +
@@ -364,7 +374,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
     onRequestBegin: function(request, win)
     {
         win = getRootWindow(win);
-        var pageObserver = this.pageObservers[win];
+        var pageObserver = this.getPageObserver(win);
         if (!pageObserver)
         {
             if (FBTrace.DBG_NETEXPORT)
@@ -379,7 +389,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
     onRequestEnd: function(request, win)
     {
         win = getRootWindow(win);
-        var pageObserver = this.pageObservers[win];
+        var pageObserver = this.getPageObserver(win);
         if (!pageObserver)
         {
             if (FBTrace.DBG_NETEXPORT)
@@ -389,11 +399,6 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
         }
 
         pageObserver.removeRequest(request);
-    },
-
-    getPageObserver: function(win)
-    {
-        return this.pageObservers[win];
     },
 
     onPageLoaded: function(win)
