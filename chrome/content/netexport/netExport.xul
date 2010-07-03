@@ -65,6 +65,11 @@
                                         tooltiptext="netexport.menu.tooltip.Show Preview"
                                         oncommand="Firebug.NetExport.onToggleOption(event, this)"
                                         option="netexport.showPreview" />
+                                    <menuitem id="netExportSaveFiles" type="checkbox"
+                                        label="netexport.menu.label.Save Files"
+                                        tooltiptext="netexport.menu.tooltip.Save Files"
+                                        oncommand="Firebug.NetExport.onToggleOption(event, this)"
+                                        option="netexport.saveFiles" />
                                     <menuseparator />
                                     <menuitem id="netExportLogDir"
                                         label="netexport.menu.label.Default Log Directory"

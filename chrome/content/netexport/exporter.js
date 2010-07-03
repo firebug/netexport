@@ -5,6 +5,15 @@ FBL.ns(function() { with (FBL) {
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
+// Use the same slash as the profile path.
+const SLASH = Cc["@mozilla.org/file/directory_service;1"]
+    .getService(Ci.nsIProperties)
+    .get("ProfD", Ci.nsIFile)
+    .path.indexOf('/') ? '\\' : '/';
+
+const localFile = new Components.Constructor("@mozilla.org/file/local;1",
+    "nsILocalFile", "initWithPath");
+
 const appInfo = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
 const ZipWriter = Components.Constructor("@mozilla.org/zipwriter;1", "nsIZipWriter");
 
@@ -13,8 +22,46 @@ const prefDomain = "extensions.firebug.netexport";
 
 // ************************************************************************************************
 
-Firebug.NetExport.Exporter =
+Firebug.NetExport.Exporter = extend(Firebug.Module,
 {
+    dtaImported: false,
+
+    initialize: function()
+    {
+        Firebug.Module.initialize.apply(this, arguments);
+
+        if (FBTrace.DBG_NETEXPORT)
+            FBTrace.sysout("netexport.Exporter.initialize;");
+
+        try
+        {
+            Components.utils.import("resource://dta/api.jsm");
+            this.dtaImported = true;
+        }
+        catch (err)
+        {
+            if (FBTrace.DBG_NETEXPORT || FBTrace.DBG_ERRORS)
+                FBTrace.sysout("netexport.Exporter.initialize; import DTA EXCEPTION " + err, err);
+        }
+    },
+
+    internationalizeUI: function(doc)
+    {
+        if (this.dtaImported)
+            return;
+
+        var saveFilesMenu =  $("netExportSaveFiles", doc);
+        if (!saveFilesMenu)
+            return;
+
+        // If DTA extension is not avaiable disable "save files" menu and set
+        // different tooltip.
+        saveFilesMenu.setAttribute("disabled", "true");
+        var text = saveFilesMenu.getAttribute("tooltiptext");
+        saveFilesMenu.setAttribute("tooltiptext", text + " " +
+            $STR("netexport.menu.tooltip.disabled.Save_Files"));
+    },
+
     exportData: function(context)
     {
         if (!context)
@@ -42,19 +89,126 @@ Firebug.NetExport.Exporter =
 
         // Build JSON result string. If the panel is empty a dialog with warning message
         // automatically appears.
-        var jsonString = this.buildData(context);
+        var json = this.buildJSON(context);
+        var jsonString = this.buildData(json);
         if (!jsonString)
             return;
 
         if (!this.saveToFile(file, jsonString, context))
             return;
 
-        if (!Firebug.getPref(prefDomain, "showPreview"))
-            return;
+        if (Firebug.getPref(prefDomain, "showPreview"))
+        {
+            var viewerURL = Firebug.getPref(prefDomain, "viewerURL");
+            if (viewerURL)
+                Firebug.NetExport.ViewerOpener.openViewer(viewerURL, jsonString);
+        }
 
-        var viewerURL = Firebug.getPref(prefDomain, "viewerURL");
-        if (viewerURL)
-            Firebug.NetExport.ViewerOpener.openViewer(viewerURL, jsonString);
+        // Save files
+        if (Firebug.getPref(prefDomain, "saveFiles"))
+        {
+            json = json.log.entries;
+
+            // Populate the URL list and remove 404s.
+            var fileList = [];
+            var entryLength = json.length;
+            for ( var i = 0; i < entryLength; i++ )
+            {
+                var entry       = json[ i ];
+                var entryStatus = entry.response.status;
+                var entryURL    = entry.request.url;
+
+                if (!(entryStatus === 404))
+                    fileList[ fileList.length ] = entryURL;
+
+                if (FBTrace.DBG_NETEXPORT)
+                {
+                    var out = entryURL + ' ' + entryStatus;
+                    (entryStatus === 404) ? out += ' -- skipped 404' : '';
+                    FBTrace.sysout(out);
+                }
+            }
+
+            // Remove duplicates.
+            fileList = this.uniq(fileList.sort());
+            var fileListLength = fileList.length;
+
+            // File path is from the Save As dialog.
+            var filePath = file.path;
+            var defaultFolderName = this.getDefaultFileName( context ) + "_files";
+
+            // Create DTA saveFile objects.
+            for (var i=0; i<fileListLength; i++)
+                fileList[i] = this.saveFile(filePath, defaultFolderName, fileList[i]);
+
+            sendLinksToManager(window, false, fileList);
+        }
+    },
+
+    // in_arr must be sorted.
+    uniq: function(_in)
+    {
+        var out = [_in[0]];
+        var old = _in[0];
+        var _inLength = _in.length;
+
+        for (var a=1; a<_inLength; a++)
+        {
+            var _new = _in[a];
+            if (_new === old)
+                continue;
+
+            out[out.length] = _in[a];
+            old = _new;
+        }
+        return out;
+    },
+
+    saveFile: function(filePath, defaultFolderName, url)
+    {
+        var aURL = url;
+        var rgx_file_from_system_path = /[\/\\]([^\/\\]+)$/;
+        // dirSave must end with SLASH so dirSave + dir will work.
+        var dirSave = filePath.replace(rgx_file_from_system_path, "") + SLASH +
+            defaultFolderName + SLASH;
+
+        // Match from the start until one or more '/' are found.
+        // http://example.com/ => "http://"
+        var rgx_url_protocol = /^[^\/]+\/+/;
+        url = url.replace( rgx_url_protocol, "");
+
+        var rgx_slash_after_question = /\?[^\/]+\//;
+        // Doesn't work with slashes after a question mark.
+        // http://example.com/folder/file.ext?a=b&c=/ => ""
+        // Match from the last / to the end of the string.
+        var rgx_file_from_url = /\/([^\/]+)$/;
+
+        // If there's a '/' after a '?' then remove the query string.
+        if (url.match( rgx_slash_after_question ))
+        {
+            //  http://example.com/folder/file.ext?a=b&c=/ =>
+            // "http://example.com/folder/file.ext"
+            // Match from the start until a ? is found.
+            var rgx_before_query_string = /^[^\?]+/;
+            url = url.match( rgx_before_query_string )[ 0 ].
+                      replace( rgx_file_from_url, "" );
+        }
+        else
+        {
+            url = url.replace( rgx_file_from_url, "" );
+        }
+
+        dirSave = dirSave + url;
+
+        return {
+            "url"         : aURL,
+            "numIstance"  : 0,
+            "referrer"    : null,
+            "description" : "",
+            "title"       : "",
+            "mask"        : "*name*.*ext*",
+            "dirSave"     : dirSave
+        };
     },
 
     // Open File Save As dialog and let the user to pick proper file location.
@@ -67,8 +221,7 @@ Firebug.NetExport.Exporter =
         fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText);
         fp.filterIndex = 1;
 
-        var loc = Firebug.NetExport.safeGetWindowLocation(context.window);
-        var defaultFileName = (loc ? loc.host : "netData") + ".har";
+        var defaultFileName = this.getDefaultFileName(context) + ".har";
 
         // Default file extension is zip if compressing is on.
         if (Firebug.getPref(prefDomain, "compress"))
@@ -83,26 +236,38 @@ Firebug.NetExport.Exporter =
         return null;
     },
 
+    getDefaultFileName: function(context)
+    {
+        var loc = Firebug.NetExport.safeGetWindowLocation(context.window);
+        return  loc ? loc.host : "netData";
+    },
+
+    buildJSON: function(context, forceExport)
+    {
+        // Export all data into a JSON string.
+        var builder = new Firebug.NetExport.HARBuilder();
+        var jsonData = builder.build(context);
+
+        if (FBTrace.DBG_NETEXPORT)
+            FBTrace.sysout("netexport.buildJSON; Number of entries: " +
+                jsonData.log.entries.length, jsonData);
+
+        if (!jsonData.log.entries.length && !forceExport)
+        {
+            alert($STR("netexport.message.Nothing to export"));
+            return null;
+        }
+
+        return jsonData;
+    },
+
     // Build JSON string from the Net panel data.
-    buildData: function(context, forceExport)
+    buildData: function(jsonData)
     {
         var jsonString = "";
 
         try
         {
-            // Export all data into a JSON string.
-            var builder = new Firebug.NetExport.HARBuilder();
-            var jsonData = builder.build(context);
-            if (FBTrace.DBG_NETEXPORT)
-                FBTrace.sysout("netexport.buildData; Number of entries: " + jsonData.log.entries.length,
-                    jsonData);
-
-            if (!jsonData.log.entries.length && !forceExport)
-            {
-                alert($STR("netexport.message.Nothing to export"));
-                return null;
-            }
-
             jsonString = JSON.stringify(jsonData, null, '  ');
         }
         catch (err)
@@ -138,7 +303,7 @@ Firebug.NetExport.Exporter =
         catch (err)
         {
             if (FBTrace.DBG_NETEXPORT || FBTrace.DBG_ERRORS)
-                FBTrace.sysout("netexport.Exporter; Failed to export net data " + err.toString());
+                FBTrace.sysout("netexport.Exporter; Failed to export net data " + err, err);
 
             return false;
         }
@@ -192,7 +357,7 @@ Firebug.NetExport.Exporter =
 
         return false;
     },
-};
+});
 
 // ************************************************************************************************
 // Viewer Opener
@@ -284,7 +449,12 @@ Firebug.NetExport.ViewerOpener =
             false, false, false, false, 0, null);
         button.dispatchEvent(event);
     }
-}
+};
+
+// ************************************************************************************************
+// Registration
+
+Firebug.registerModule(Firebug.NetExport.Exporter);
 
 // ************************************************************************************************
 }});

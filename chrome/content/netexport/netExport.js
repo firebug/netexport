@@ -42,7 +42,8 @@ Firebug.NetExport = extend(Firebug.Module,
         if (FBTrace.DBG_NETEXPORT)
             FBTrace.sysout("netexport.internationalizeUI");
 
-        var elements = ["netExport", "netExportCompress", "netExportAuto",
+        var elements = ["netExport", "netExportSaveFiles", "netExportCompress",
+            "netExportAuto",
             "netExportOptions", "netExportLogDir", "netExportHelp",
             "netExportAbout", "netExportShowPreview", "netRunPageSuite",
             "netExportSaveAs", "netExportScreenCopy"];
@@ -50,6 +51,9 @@ Firebug.NetExport = extend(Firebug.Module,
         for (var i=0; i<elements.length; i++)
         {
             var element = $(elements[i], doc);
+            if (!element)
+                continue;
+
             FBL.internationalize(element, "label");
             FBL.internationalize(element, "tooltiptext");
             FBL.internationalize(element, "buttontooltiptext");

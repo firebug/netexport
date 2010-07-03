@@ -4,6 +4,9 @@ pref("extensions.firebug.DBG_NETEXPORT", false);
 // URL of the default HAR viewer.
 pref("extensions.firebug.netexport.viewerURL", "http://www.softwareishard.com/har/viewer-1.1");
 
+// If true, files are saved.
+pref("extensions.firebug.netexport.saveFiles", false);
+
 // If true, HAR files are compressed.
 pref("extensions.firebug.netexport.compress", false);
 

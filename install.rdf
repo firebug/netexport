@@ -20,6 +20,7 @@
     <em:description>Use this extension to export data from Firebug's Net panel.</em:description>
     <em:creator>Jan Odvarko</em:creator>
     <em:homepageURL>http://getfirebug.com/releases/extensions.html#netexport</em:homepageURL>
+    <em:contributor>Matthew Consiliens</em:contributor>
 
     <em:updateURL>https://getfirebug.com/releases/netexport/update.rdf</em:updateURL>
   </Description>
