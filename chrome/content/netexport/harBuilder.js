@@ -30,7 +30,12 @@ Firebug.NetExport.HARBuilder.prototype =
 
         // Build entries.
         var self = this;
-        panel.enumerateRequests(function(file) {
+        panel.enumerateRequests(function(file)
+        {
+            // Don't export BFCache responses. These don't represent network activity.
+            if (file.fromBFCache)
+                return;
+
             if (file.loaded)
                 log.entries.push(self.buildEntry(log, file));
         })
