@@ -24,7 +24,7 @@ const prefDomain = "extensions.firebug.netexport";
 
 Firebug.NetExport.Exporter = extend(Firebug.Module,
 {
-    dtaImported: false,
+    DTA: null,
 
     initialize: function()
     {
@@ -35,19 +35,22 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
 
         try
         {
-            Components.utils.import("resource://dta/api.jsm");
+            this.DTA = {};
+            Components.utils.import("resource://dta/api.jsm", this.DTA);
             this.dtaImported = true;
         }
         catch (err)
         {
-            if (FBTrace.DBG_NETEXPORT || FBTrace.DBG_ERRORS)
+            this.DTA = null;
+
+            if (FBTrace.DBG_NETEXPORT)
                 FBTrace.sysout("netexport.Exporter.initialize; import DTA EXCEPTION " + err, err);
         }
     },
 
     internationalizeUI: function(doc)
     {
-        if (this.dtaImported)
+        if (this.DTA)
             return;
 
         var saveFilesMenu =  $("netExportSaveFiles", doc);
@@ -141,7 +144,8 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
             for (var i=0; i<fileListLength; i++)
                 fileList[i] = this.saveFile(filePath, defaultFolderName, fileList[i]);
 
-            sendLinksToManager(window, false, fileList);
+            // Automatically download all files in the list.
+            this.DTA.sendLinksToManager(window, true, fileList);
         }
     },
 
@@ -168,9 +172,9 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
     {
         var aURL = url;
         var rgx_file_from_system_path = /[\/\\]([^\/\\]+)$/;
-        // dirSave must end with SLASH so dirSave + dir will work.
-        var dirSave = filePath.replace(rgx_file_from_system_path, "") + SLASH +
-            defaultFolderName + SLASH;
+
+        var dirSave = new localFile(filePath.replace(rgx_file_from_system_path, ""));
+        dirSave.append(defaultFolderName);
 
         // Match from the start until one or more '/' are found.
         // http://example.com/ => "http://"
@@ -198,7 +202,13 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
             url = url.replace( rgx_file_from_url, "" );
         }
 
-        dirSave = dirSave + url;
+        // Note: String.trim() is moz-1.9.1+ (FX 3.5)
+        // Supported DTA has this as minimum requirement anyway.
+        for each (var part in url.split(/[\/\\]+/).map(function(e) e.trim()))
+        {
+            if (part)
+                dirSave.append(part);
+        }
 
         return {
             "url"         : aURL,
@@ -207,7 +217,7 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
             "description" : "",
             "title"       : "",
             "mask"        : "*name*.*ext*",
-            "dirSave"     : dirSave
+            "dirSave"     : dirSave.path
         };
     },
 
