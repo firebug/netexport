@@ -39,6 +39,10 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
         {
             if (!this.isActive())
                 this.activate();
+
+            // Make sure Firebug's net observer is activated.
+            if (httpObserver.registerObservers)
+                httpObserver.registerObservers();
         }
     },
 
@@ -108,7 +112,8 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
             return;
         }
 
-        var jsonString = Firebug.NetExport.Exporter.buildData(context, true);
+        var json = Firebug.NetExport.Exporter.buildJSON(context);
+        var jsonString = Firebug.NetExport.Exporter.buildData(json, true);
 
         // Store collected data into a HAR file (within default directory).
         if (Firebug.getPref(prefDomain, "autoExportToFile"))
@@ -188,10 +193,6 @@ Firebug.NetExport.PageLoadObserver.prototype =
         remove(this.requests, request);
         if (this.requests.length > 0)
             return;
-
-        if (FBTrace.DBG_NETEXPORT)
-            FBTrace.sysout("netexport.PageObserver; Looks like this could be the last response: " +
-                safeGetRequestName(request));
 
         // Wait yet a little bit to catch even delayed XHR. The delay the autoexport
         // feature waits whether there is another request is customizable through
@@ -327,7 +328,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
         if (observer)
         {
             if (FBTrace.DBG_NETEXPORT)
-                FBTrace.sysout("netexport.Automation; Page load observer detected for: " +
+                FBTrace.sysout("netexport.Automation; PAGE OBSERVER DETECTED for: " +
                     safeGetWindowLocation(win));
 
             // In cases where an existing page is reloaded before the previous load
@@ -336,7 +337,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
         }
 
         if (FBTrace.DBG_NETEXPORT)
-            FBTrace.sysout("netexport.Automation; Page load observer created for: " +
+            FBTrace.sysout("netexport.Automation; PAGE OBSERVER CREATED for: " +
                 safeGetWindowLocation(win));
 
         this.pageObservers.push(new PageLoadObserver(win));

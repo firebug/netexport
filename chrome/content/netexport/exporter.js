@@ -36,7 +36,7 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
         try
         {
             this.DTA = {};
-            Components.utils.import("resource://dta/api.jsm", this.DTA);
+            Components.utils["import"]("resource://dta/api.jsm", this.DTA);
             this.dtaImported = true;
         }
         catch (err)
@@ -204,7 +204,11 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
 
         // Note: String.trim() is moz-1.9.1+ (FX 3.5)
         // Supported DTA has this as minimum requirement anyway.
-        for each (var part in url.split(/[\/\\]+/).map(function(e) e.trim()))
+        var parts = url.split(/[\/\\]+/).map(function(e){
+            e.trim();
+        });
+
+        for (var part in parts)
         {
             if (part)
                 dirSave.append(part);
