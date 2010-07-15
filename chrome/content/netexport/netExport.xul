@@ -117,6 +117,6 @@
     </toolbar>
 
     <popupset id="mainPopupSet">
-        <popup id="netExportUploadAbort" />
+        <menupopup id="netExportUploadAbort" />
     </popupset>
 </overlay>
