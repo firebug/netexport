@@ -112,8 +112,8 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
             return;
         }
 
-        var json = Firebug.NetExport.Exporter.buildJSON(context);
-        var jsonString = Firebug.NetExport.Exporter.buildData(json, true);
+        var json = Firebug.NetExport.Exporter.buildJSON(context, true);
+        var jsonString = Firebug.NetExport.Exporter.buildData(json);
 
         // Store collected data into a HAR file (within default directory).
         if (Firebug.getPref(prefDomain, "autoExportToFile"))

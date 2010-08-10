@@ -278,6 +278,9 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
     // Build JSON string from the Net panel data.
     buildData: function(jsonData)
     {
+        if (!jsonData)
+            return null;
+
         var jsonString = "";
 
         try

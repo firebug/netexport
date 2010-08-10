@@ -39,7 +39,10 @@ Firebug.NetExport.HARUploader =
             }
 
             if (!jsonString)
-                jsonString = Firebug.NetExport.Exporter.buildData(context);
+            {
+                var json = Firebug.NetExport.Exporter.buildJSON(context);
+                jsonString = Firebug.NetExport.Exporter.buildData(json);
+            }
 
             if (!jsonString)
                 return;
@@ -48,7 +51,7 @@ Firebug.NetExport.HARUploader =
             serverURL += "?url=" + pageURL;
 
             if (FBTrace.DBG_NETEXPORT)
-                FBTrace.sysout("netexport.upload; " + serverURL);
+                FBTrace.sysout("netexport.upload; " + serverURL, jsonString);
 
             // The instance is associated with the progress meter, which is removed at the end.
             var uploader = new Uploader(serverURL, pageURL, async);
