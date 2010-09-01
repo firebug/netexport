@@ -28,6 +28,11 @@ Firebug.NetExport.HARBuilder.prototype =
         // Build basic structure for data.
         var log = this.buildLog();
 
+        // Before enumerating requests, we need to call layout methods that renders
+        // content of the panel. This ensures export even if the panel is not visible
+        // (since e.g. Firebug UI is minimized).
+        panel.layout();
+
         // Build entries.
         var self = this;
         panel.enumerateRequests(function(file)
