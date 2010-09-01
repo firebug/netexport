@@ -27,7 +27,6 @@
 
                     <!-- Export Net panel data as HAR -->
                     <toolbarbutton id="netExport"
-                        class="toolbar-text-button fbmenubutton"
                         insertbefore="fbNetFilter-all"
                         label="netexport.button.label.Export"
                         tooltiptext="netexport.button.tooltip.Export HTTP Tracing"
@@ -108,6 +107,7 @@
 
                     <!-- Export Automation -->
                     <toolbarbutton id="netExportAuto" command="cmd_netExportAuto"
+                        class="toolbarbutton-iconic"
                         insertbefore="fbNetFilter-all"
                         tooltiptext="netexport.menu.tooltip.Activate Auto Export" />
                     <toolbarseparator insertbefore="fbNetFilter-all"/>
