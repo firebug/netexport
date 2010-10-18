@@ -4,7 +4,7 @@ Issue list: http://code.google.com/p/fbug/issues/list
 Releases: http://getfirebug.com/releases/netexport/
 
 
-Release Notes for NetExport 0.8b6
+Release Notes for NetExport 0.8b7
 ---------------------------------
-* New preference "extensions.firebug.netexport.exportFromBFCache". If set to true, even requests
-  coming from the BFCache are exported.
+* New preference "extensions.firebug.netexport.exportFromBFCache" (renamed from b6).
+  If set to true, even requests coming from the BFCache are exported.
