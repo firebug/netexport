@@ -34,5 +34,5 @@ pref("extensions.firebug.netexport.autoExportToFile", true);
 // Auto export feature sends results to the server.
 pref("extensions.firebug.netexport.autoExportToServer", false);
 
-// If set to true, requests coming from BFCache will be also exported.
+// If set to true, requests coming from BFCache will also be exported.
 pref("extensions.firebug.netexport.exportFromBFCache", false);

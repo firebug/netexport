@@ -5,12 +5,6 @@ FBL.ns(function() { with (FBL) {
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
-// Use the same slash as the profile path.
-const SLASH = Cc["@mozilla.org/file/directory_service;1"]
-    .getService(Ci.nsIProperties)
-    .get("ProfD", Ci.nsIFile)
-    .path.indexOf('/') ? '\\' : '/';
-
 const localFile = new Components.Constructor("@mozilla.org/file/local;1",
     "nsILocalFile", "initWithPath");
 
@@ -37,7 +31,6 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
         {
             this.DTA = {};
             Components.utils["import"]("resource://dta/api.jsm", this.DTA);
-            this.dtaImported = true;
         }
         catch (err)
         {

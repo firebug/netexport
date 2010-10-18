@@ -34,7 +34,7 @@ Firebug.NetExport.HARBuilder.prototype =
         // (since e.g. Firebug UI is minimized).
         panel.layout();
 
-        // If set to true, requests coming from BFCache will be also exported.
+        // If set to true, requests coming from BFCache will also be exported.
         var exportFromBFCache = Firebug.getPref(prefDomain, "exportFromBFCache");
 
         // Build entries.
