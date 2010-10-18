@@ -34,8 +34,8 @@ Firebug.NetExport.HARBuilder.prototype =
         // (since e.g. Firebug UI is minimized).
         panel.layout();
 
-        // If set to true, requests coming from FBCache will be also exported.
-        var exportFromFBCache = Firebug.getPref(prefDomain, "exportFromFBCache");
+        // If set to true, requests coming from BFCache will be also exported.
+        var exportFromBFCache = Firebug.getPref(prefDomain, "exportFromBFCache");
 
         // Build entries.
         var self = this;
@@ -43,7 +43,7 @@ Firebug.NetExport.HARBuilder.prototype =
         {
             // Don't export BFCache responses. These don't represent network activity.
             // Do export if the pref says so.
-            if (file.fromBFCache && !exportFromFBCache)
+            if (file.fromBFCache && !exportFromBFCache)
                 return;
 
             if (file.loaded)
