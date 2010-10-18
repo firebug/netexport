@@ -8,6 +8,7 @@ const Ci = Components.interfaces;
 const appInfo = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
 
 const harVersion = "1.1";
+var prefDomain = "extensions.firebug.netexport";
 
 // ************************************************************************************************
 // HAR builder implementation
@@ -33,12 +34,16 @@ Firebug.NetExport.HARBuilder.prototype =
         // (since e.g. Firebug UI is minimized).
         panel.layout();
 
+        // If set to true, requests coming from FBCache will be also exported.
+        var exportFromFBCache = Firebug.getPref(prefDomain, "exportFromFBCache");
+
         // Build entries.
         var self = this;
         panel.enumerateRequests(function(file)
         {
             // Don't export BFCache responses. These don't represent network activity.
-            if (file.fromBFCache)
+            // Do export if the pref says so.
+            if (file.fromBFCache && !exportFromFBCache)
                 return;
 
             if (file.loaded)

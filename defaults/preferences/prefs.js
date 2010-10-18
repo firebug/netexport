@@ -33,3 +33,6 @@ pref("extensions.firebug.netexport.autoExportToFile", true);
 
 // Auto export feature sends results to the server.
 pref("extensions.firebug.netexport.autoExportToServer", false);
+
+// If set to true, requests coming from FBCache will be also exported.
+pref("extensions.firebug.netexport.exportFromFBCache", false);

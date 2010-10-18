@@ -1,0 +1,10 @@
+Author: Jan Odvarko, odvarko@gmail.com, http://www.softwareishard.com/
+Home page: http://www.softwareishard.com/blog/netexport/
+Issue list: http://code.google.com/p/fbug/issues/list
+Releases: http://getfirebug.com/releases/netexport/
+
+
+Release Notes for NetExport 0.8b6
+---------------------------------
+* New preference "extensions.firebug.netexport.exportFromFBCache". If set to true, even requests
+  coming from the FBCache are exported.
