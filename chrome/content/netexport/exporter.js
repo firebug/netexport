@@ -205,10 +205,10 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
         // Note: String.trim() is moz-1.9.1+ (FX 3.5)
         // Supported DTA has this as minimum requirement anyway.
         var parts = url.split(/[\/\\]+/).map(function(e){
-            e.trim();
+            return e.trim();
         });
 
-        for (var part in parts)
+        for each (var part in parts)
         {
             if (part)
                 dirSave.append(part);
