@@ -19,8 +19,8 @@
     <em:requires>
       <Description>
         <em:id>firebug@software.joehewitt.com</em:id>
-        <em:minVersion>1.5.*</em:minVersion>
-        <em:maxVersion>1.7.*</em:maxVersion>
+        <em:minVersion>1.5*</em:minVersion>
+        <em:maxVersion>1.7*</em:maxVersion>
       </Description>
     </em:requires>
 
