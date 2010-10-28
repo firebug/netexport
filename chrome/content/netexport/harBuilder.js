@@ -155,7 +155,7 @@ Firebug.NetExport.HARBuilder.prototype =
         if (!file.postText)
             return;
 
-        var postData = {mimeType: ""};
+        var postData = {mimeType: "", params: [], text: ""};
 
         var text = file.postText;
         if (isURLEncodedFile(file, text))
@@ -254,9 +254,12 @@ Firebug.NetExport.HARBuilder.prototype =
 
     buildResponse: function(file)
     {
-        var response = {};
+        var response = {status: 0};
 
-        response.status = file.responseStatus;
+        // Arbitary value if it's aborted to make sure status has a number
+        if (file.responseStatus)
+            response.status = file.responseStatus;
+
         response.statusText = file.responseStatusText;
         response.httpVersion = this.getHttpVersion(file.request, false);
 
@@ -274,7 +277,7 @@ Firebug.NetExport.HARBuilder.prototype =
 
     buildContent: function(file)
     {
-        var content = {};
+        var content = {mimeType: ""};
         content.size = file.responseText ? file.responseText.length :
             (file.size >= 0 ? file.size : 0);
 
