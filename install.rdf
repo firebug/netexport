@@ -16,14 +16,6 @@
       </Description>
     </em:targetApplication>
 
-    <em:requires>
-      <Description>
-        <em:id>firebug@software.joehewitt.com</em:id>
-        <em:minVersion>1.5*</em:minVersion>
-        <em:maxVersion>1.7*</em:maxVersion>
-      </Description>
-    </em:requires>
-
     <em:name>NetExport</em:name>
     <em:description>Use this extension to export data from Firebug's Net panel.</em:description>
     <em:creator>Jan Odvarko</em:creator>
