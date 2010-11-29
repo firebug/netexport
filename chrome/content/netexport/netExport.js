@@ -204,7 +204,8 @@ Firebug.NetExport.NetPanelScreenCopier =
             panelNode.style["overflow"] = "visible";
             panelNode.style["position"] = "relative";
 
-            var win = $("fbPanelBar1").browser.contentWindow;
+            // Use the current parent window (Firebug can be detached).
+            var win = panelNode.ownerDocument.defaultView;
             var height = panelNode.scrollHeight;
             var width = panelNode.scrollWidth;
 
