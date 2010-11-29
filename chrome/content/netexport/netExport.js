@@ -194,16 +194,19 @@ Firebug.NetExport.NetPanelScreenCopier =
 {
     copyToClipboard: function(context)
     {
+        var netPanel = context.getPanel("net");
+        var panelNode = netPanel.panelNode;
+
         try
         {
+            // Change Net panel styling so, even the non visible window area
+            // is drawen into an image.
+            panelNode.style["overflow"] = "visible";
+            panelNode.style["position"] = "relative";
+
             var win = $("fbPanelBar1").browser.contentWindow;
-
-            //var netPanel = context.getPanel("net");
-            //var height = netPanel.panelNode.scrollHeight;
-            //var width = netPanel.panelNode.scrollWidth;
-
-            var height = win.innerHeight;
-            var width = win.innerWidth;
+            var height = panelNode.scrollHeight;
+            var width = panelNode.scrollWidth;
 
             var canvas = this.getCanvasFromWindow(win, width, height);
             var image = window.content.document.createElement("img");
@@ -219,6 +222,11 @@ Firebug.NetExport.NetPanelScreenCopier =
         {
             if (FBTrace.DBG_NETEXPORT || FBTrace.DBG_ERRORS)
                 FBTrace.sysout("netexport.copyToClipboard; EXCEPTION",err);
+        }
+        finally
+        {
+            panelNode.style["overflow"] = "";
+            panelNode.style["position"] = "";
         }
     },
 
