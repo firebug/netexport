@@ -54,6 +54,9 @@
                             <!-- Options -->
                             <menu id="netExportOptions" label="netexport.menu.label.Options">
                                 <menupopup onpopupshowing="return Firebug.NetExport.onOptionsShowing(this);">
+                                    <menuitem id="netExportAutoOption" type="checkbox"
+                                        label="netexport.menu.label.Auto Export"
+                                        command="cmd_netExportAuto" />
                                     <menuitem id="netExportCompress" type="checkbox"
                                         label="netexport.menu.label.Compress"
                                         tooltiptext="netexport.menu.tooltip.Compress"

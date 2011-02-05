@@ -45,7 +45,8 @@ Firebug.NetExport = extend(Firebug.Module,
         var elements = ["netExport", "netExportCompress", "netExportAuto",
             "netExportOptions", "netExportLogDir", "netExportHelp",
             "netExportAbout", "netExportShowPreview", "netRunPageSuite",
-            "netExportSaveAs", "netExportScreenCopy", "netExportSaveFiles"];
+            "netExportSaveAs", "netExportScreenCopy", "netExportSaveFiles",
+            "netExportAutoOption"];
 
         for (var i=0; i<elements.length; i++)
         {
@@ -143,6 +144,15 @@ Firebug.NetExport = extend(Firebug.Module,
                 {
                     var checked = Firebug.getPref(Firebug.prefDomain, option);
                     child.setAttribute("checked", checked);
+                }
+
+                if (child.getAttribute("id") == "netExportAutoOption")
+                {
+                    var active = this.Automation.isActive();
+                    child.setAttribute("checked", (active ? "true" : "false"));
+                    child.setAttribute("tooltiptext", (active ?
+                        $STR("netexport.menu.tooltip.Deactivate_Auto_Export") :
+                        $STR("netexport.menu.tooltip.Activate_Auto_Export")));
                 }
             }
         }
