@@ -5,7 +5,6 @@ FBL.ns(function() { with (FBL) {
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
-const extensionManager = CCSV("@mozilla.org/extensions/manager;1", "nsIExtensionManager");
 const clipboard = CCSV("@mozilla.org/widget/clipboard;1", "nsIClipboard");
 const clipboardHelper = CCSV("@mozilla.org/widget/clipboardhelper;1", "nsIClipboardHelper");
 
@@ -178,10 +177,33 @@ Firebug.NetExport = extend(Firebug.Module,
 
     onAbout: function(event, context)
     {
-        var parent = context.chrome.window;
-        parent.openDialog("chrome://mozapps/content/extensions/about.xul", "",
-            "chrome,centerscreen,modal", "urn:mozilla:item:netexport@getfirebug.com",
-            extensionManager.datasource);
+        try
+        {
+            // Firefox 4.0 implements new AddonManager. In case of Firefox 3.6 the module
+            // is not avaialble and there is an exception.
+            Components.utils["import"]("resource://gre/modules/AddonManager.jsm");
+        }
+        catch (err)
+        {
+        }
+
+        if (typeof(AddonManager) != "undefined")
+        {
+            AddonManager.getAddonByID("netexport@getfirebug.com", function(addon) {
+                openDialog("chrome://mozapps/content/extensions/about.xul", "",
+                "chrome,centerscreen,modal", addon);
+            });
+        }
+        else
+        {
+            var extensionManager = FBL.CCSV("@mozilla.org/extensions/manager;1",
+                "nsIExtensionManager");
+
+            var parent = context.chrome.window;
+            parent.openDialog("chrome://mozapps/content/extensions/about.xul", "",
+                "chrome,centerscreen,modal", "urn:mozilla:item:netexport@getfirebug.com",
+                extensionManager.datasource);
+        }
 
         cancelEvent(event);
     },
