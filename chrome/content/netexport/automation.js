@@ -178,36 +178,59 @@ Firebug.NetExport.PageLoadObserver = function(win)
 {
     this.window = win;
     this.requests = [];
+
+    // These must be true in order to declare the window loaded.
+    this.loaded = false;
+    this.painted = false;
+
+    this.registerForWindowLoad();
 }
 
 Firebug.NetExport.PageLoadObserver.prototype =
 /** @lends Firebug.NetExport.PageLoadObserver */
 {
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    // HTTP Requests counter
+
     addRequest: function(request)
     {
         this.requests.push(request);
-
-        clearTimeout(this.timeout);
-        delete this.timeout;
+        this.resetTimeout();
     },
 
     removeRequest: function(request)
     {
         remove(this.requests, request);
+        this.resetTimeout();
+    },
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+    resetTimeout: function()
+    {
+        // Remove the current timeout if any.
+        if (this.timeout)
+        {
+            clearTimeout(this.timeout);
+            delete this.timeout;
+        }
+
+        // 1) The page is not loaded if there are pending requests.
         if (this.requests.length > 0)
             return;
 
-        // Don't create the timeout twice.
-        if (this.timeout)
+        // 2) The page is not loaded if the 'load' event wasn't fired for the window.
+        // Also at least one paint event is required.
+        if (!this.loaded || !this.painted)
             return;
 
-        // Wait yet a little bit to catch even delayed XHR. The delay the autoexport
-        // feature waits whether there is another request is customizable through
-        // preferences. See: extensions.firebug.netexport.pageLoadedTimeout
-        var timeout = Firebug.getPref(prefDomain, "pageLoadedTimeout");
-        this.timeout = setTimeout(bindFixed(this.onPageLoaded, this), timeout);
+        // 3) The page is loaded if there is no new request after specified timeout.
+        // extensions.firebug.netexport.pageLoadedTimeout
+        this.timeout = setTimeout(bindFixed(this.onPageLoaded, this),
+            Firebug.getPref(prefDomain, "pageLoadedTimeout"));
     },
 
+    // Called after timeout when there is no other request.
     onPageLoaded: function()
     {
         // If no reqeusts appeared, the page is loaded.
@@ -215,10 +238,96 @@ Firebug.NetExport.PageLoadObserver.prototype =
             HttpObserver.onPageLoaded(this.window);
     },
 
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    // Support for window loaded events.
+
+    getBrowserByWindow: function(win)
+    {
+        var browsers = Firebug.chrome.getBrowsers();
+        for (var i = 0; i < browsers.length; ++i)
+        {
+            var browser = browsers[i];
+            if (browser.contentWindow == win)
+                return browser;
+        }
+
+        return null;
+    },
+
+    // Wait for all event that must be fired before the window is loaded.
+    // Any event is missing?
+    // xxxHonza: In case of Firefox 3.7 the new 'content-document-global-created'
+    // (bug549539) could be utilized.
+    onEvent: function(event)
+    {
+        if (event.type == "load")
+        {
+            if (FBTrace.DBG_NETEXPORT)
+                FBTrace.sysout("netexport.PageLoadObserver; 'load': " +
+                    safeGetWindowLocation(this.window));
+
+            var browser = this.getBrowserByWindow(this.window);
+            browser.removeEventListener("load", this.onEventHandler, true);
+            this.loaded = true;
+        }
+        else if (event.type == "MozAfterPaint")
+        {
+            if (FBTrace.DBG_NETEXPORT)
+                FBTrace.sysout("netexport.PageLoadObserver; 'MozAfterPaint': " +
+                    safeGetWindowLocation(this.window));
+
+            var browser = this.getBrowserByWindow(this.window);
+            browser.removeEventListener("MozAfterPaint", this.onEventHandler, true);
+            this.painted = true;
+        }
+
+        // Execute callback after 100ms timout (the inspector tests need it for now),
+        // but this shoud be set to 0.
+        if (this.loaded && this.painted)
+        {
+            if (FBTrace.DBG_NETEXPORT)
+                FBTrace.sysout("netexport.PageLoadObserver; window is loaded: " +
+                    safeGetWindowLocation(this.window));
+
+            // Are we loaded yet?
+            this.resetTimeout();
+        }
+    },
+
+    registerForWindowLoad: function()
+    {
+        this.onEventHandler = bind(this.onEvent, this);
+
+        var browser = this.getBrowserByWindow(this.window);
+        browser.addEventListener("load", this.onEventHandler, true);
+        browser.addEventListener("MozAfterPaint", this.onEventHandler, true);
+    },
+
+    // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+    // Clean up
+
     destroy: function()
     {
-        clearTimeout(this.timeout);
-        delete this.timeout;
+        if (FBTrace.DBG_NETEXPORT)
+            FBTrace.sysout("netexport.PageLoadObserver; destroy " + this.window.location);
+
+        try
+        {
+            clearTimeout(this.timeout);
+            delete this.timeout;
+
+            var browser = this.getBrowserByWindow(this.window);
+            if (!this.loaded)
+                browser.removeEventListener("load", this.onEventHandler, true);
+
+            if (!this.painted)
+                browser.removeEventListener("MozAfterPaint", this.onEventHandler, true);
+        }
+        catch (err)
+        {
+            if (FBTrace.DBG_ERRORS || FBTrace.DBG_NETEXPORT)
+                FBTrace.sysout("netexport.PageLoadObserver; EXCEPTION", err);
+        }
     },
 };
 
@@ -349,7 +458,9 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
             FBTrace.sysout("netexport.Automation; PAGE OBSERVER CREATED for: " +
                 safeGetWindowLocation(win));
 
-        this.pageObservers.push(new PageLoadObserver(win));
+        // Create page load observer. This object knows when to fire the "page loaded" event.
+        var observer = new PageLoadObserver(win);
+        this.pageObservers.push(observer);
     },
 
     getPageObserver: function(win)
@@ -399,6 +510,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
     onRequestEnd: function(request, win)
     {
         win = getRootWindow(win);
+
         var pageObserver = this.getPageObserver(win);
         if (!pageObserver)
         {
