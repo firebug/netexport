@@ -10,6 +10,9 @@ const dirService = Cc["@mozilla.org/file/directory_service;1"].getService(Ci.nsI
 var autoExportButton = $("netExportAuto");
 var prefDomain = "extensions.firebug.netexport";
 
+Components.utils["import"]("resource://firebug/firebug-http-observer.js");
+var httpObserver = httpRequestObserver;
+
 // ************************************************************************************************
 // Controller for automatic export.
 

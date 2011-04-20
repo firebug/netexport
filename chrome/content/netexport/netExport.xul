@@ -13,11 +13,11 @@
     <script src="chrome://netexport/content/harUploader.js" type="application/x-javascript"/>
 
     <commandset id="mainCommandSet">
-        <command id="cmd_netExport" oncommand="Firebug.NetExport.exportData(FirebugContext)"/>
-        <command id="cmd_netImport" oncommand="Firebug.NetExport.importData(FirebugContext)"/>
-        <command id="cmd_netExportAuto" oncommand="Firebug.NetExport.toggleAutoExport(FirebugContext)"/>
-        <command id="cmd_netExportSendTo" oncommand="Firebug.NetExport.sendTo(FirebugContext)"/>
-        <command id="cmd_netExportScreenCopy" oncommand="Firebug.NetExport.screenCopy(FirebugContext)"/>
+        <command id="cmd_netExport" oncommand="Firebug.NetExport.exportData(Firebug.currentContext)"/>
+        <command id="cmd_netImport" oncommand="Firebug.NetExport.importData(Firebug.currentContext)"/>
+        <command id="cmd_netExportAuto" oncommand="Firebug.NetExport.toggleAutoExport(Firebug.currentContext)"/>
+        <command id="cmd_netExportSendTo" oncommand="Firebug.NetExport.sendTo(Firebug.currentContext)"/>
+        <command id="cmd_netExportScreenCopy" oncommand="Firebug.NetExport.screenCopy(Firebug.currentContext)"/>
     </commandset>
 
     <toolbar id="fbToolbar" align="center" role="toolbar">
@@ -94,7 +94,7 @@
                             <menuitem id="netExportAbout"
                                 label="netexport.menu.label.About"
                                 tooltiptext="netexport.menu.tooltip.About"
-                                oncommand="Firebug.NetExport.onAbout(event, FirebugContext)" />
+                                oncommand="Firebug.NetExport.onAbout(event, Firebug.currentContext)" />
                         </menupopup>
                     </toolbarbutton>
 
