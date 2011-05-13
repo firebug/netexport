@@ -29,6 +29,7 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
 {
     active: false,
     logFolder: null,
+    dispatchName: "netExportAutomation",
 
     initialize: function(owner)
     {

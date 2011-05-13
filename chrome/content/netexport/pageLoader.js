@@ -15,6 +15,7 @@ var prefDomain = "extensions.firebug.netexport";
 Firebug.NetExport.PageLoader = extend(Firebug.Module,
 {
     currentSuite: null,
+    dispatchName: "netExportPageLoader",
 
     initialize: function(owner)
     {

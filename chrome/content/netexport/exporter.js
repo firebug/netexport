@@ -19,6 +19,7 @@ const prefDomain = "extensions.firebug.netexport";
 Firebug.NetExport.Exporter = extend(Firebug.Module,
 {
     DTA: null,
+    dispatchName: "netExportExporter",
 
     initialize: function()
     {
