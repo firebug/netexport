@@ -409,14 +409,15 @@ Firebug.NetExport.ViewerOpener =
         // The viewer is not opened yet so, open a new tab.
         if (!result)
         {
-            gBrowser.selectedTab = gBrowser.addTab(url);
+            var tabBrowser = FBL.getTabBrowser();
+            tabBrowser.selectedTab = tabBrowser.addTab(url);
 
             if (FBTrace.DBG_NETEXPORT)
                 FBTrace.sysout("netExport.openViewer; Open HAR Viewer tab",
-                    gBrowser.selectedTab.linkedBrowser);
+                    tabBrowser.selectedTab.linkedBrowser);
 
             var self = this;
-            var browser = gBrowser.selectedTab.linkedBrowser;
+            var browser = tabBrowser.selectedTab.linkedBrowser;
             function onContentLoad(event) {
                 browser.removeEventListener("DOMContentLoaded", onContentLoad, true);
                 self.onContentLoad(event, jsonString);

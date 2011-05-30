@@ -199,7 +199,8 @@ Uploader.prototype =
             FBTrace.sysout("netexport.uploader.onFinished; HAR Beacon sent, open Beacon server: " +
                 showSlowURL);
 
-        gBrowser.selectedTab = gBrowser.addTab(showSlowURL);
+        var tabBrowser = FBL.getTabBrowser();
+        tabBrowser.selectedTab = tabBrowser.addTab(showSlowURL);
     },
 
     onError: function(event)
