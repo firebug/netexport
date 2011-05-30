@@ -107,8 +107,8 @@ Firebug.NetExport.HARBuilder.prototype =
         entry.timings = this.buildTimings(file);
 
         // Remote IP address and port number are accessible in Firefox 5.
-        if (file.remoteIP)
-            entry.serverIPAddress = file.remoteIP;
+        if (file.remoteAddress)
+            entry.serverIPAddress = file.remoteAddress;
 
         if (file.remotePort)
             entry.connection = file.remotePort + ""; // must be a string
