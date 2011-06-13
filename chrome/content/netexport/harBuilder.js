@@ -117,22 +117,79 @@ Firebug.NetExport.HARBuilder.prototype =
         if (!page.startedDateTime)
             page.startedDateTime = entry.startedDateTime;
 
-        // Put page timings into the page object now when we have the first entry.
-        if (!page.pageTimings)
-            page.pageTimings = this.buildPageTimings(file);
+        page.pageTimings = this.buildPageTimings(page, file);
 
         return entry;
     },
 
-    buildPageTimings: function(file)
+    buildPageTimings: function(page, file)
     {
-        var timings = {onContentLoad: 0, onLoad: 0};
+        var timings = page.pageTimings;
 
-        if (file.phase.contentLoadTime)
-            timings.onContentLoad = file.phase.contentLoadTime - file.startTime;
+        // Put page timings into the page object when we have the first entry.
+        if (!timings)
+        {
+            timings = {onContentLoad: 0, onLoad: 0};
 
-        if (file.phase.windowLoadTime)
-            timings.onLoad = file.phase.windowLoadTime - file.startTime;
+            if (file.phase.contentLoadTime)
+                timings.onContentLoad = file.phase.contentLoadTime - file.startTime;
+
+            if (file.phase.windowLoadTime)
+                timings.onLoad = file.phase.windowLoadTime - file.startTime;
+
+            // Remember start time of the first request for time stamps below. Time stamps
+            // are always computed against the page start time.
+            this.startedDateTime = file.startTime;
+        }
+
+        // Compatibility with older versions of Firebug (no time stamp).
+        if (!phase.timeStamps)
+            return;
+
+        if (!this.phases)
+            this.phases = [];
+
+        // Check whether time-stamps from this phase has been already exported.
+        var phase = file.phase;
+        if (this.phases.indexOf(phase) != -1)
+            return timings;
+
+        // Timings produced by console.timeStamp. This can be part of other phases too.
+        var tempTimings = {};
+        for (var i=0; i<phase.timeStamps.length; i++)
+        {
+            var timeStamp = phase.timeStamps[i];
+            if (!timeStamp.time)
+                continue;
+
+            // Ignore standard timings (we exported them already)
+            var name = timeStamp.label;
+            if (name == "load" || name == "DOMContentLoaded")
+                continue;
+
+            // Avoid name collisions with standard fields for provide a default name "_"
+            // and also follow HAR rule for non-standard field names.
+            name = "_" + name;
+
+            if (!tempTimings[name])
+                tempTimings[name] = [];
+
+            tempTimings[name].push(timeStamp.time - this.startedDateTime);
+        }
+
+        // Convert timing data into HAR fileds. Stamps with the same name are represented
+        // by an array with numbers.
+        for (var p in tempTimings)
+        {
+            var temp = tempTimings[p];
+            if (temp.length == 1)
+                timings[p] = temp[0];
+            else
+                timings[p] = temp.join(",");
+        }
+
+        // Time stamps from this phase has been exported.
+        this.phases.push(phase);
 
         return timings;
     },
