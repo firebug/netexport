@@ -186,7 +186,7 @@ Firebug.NetExport.HARBuilder.prototype =
             if (temp.length == 1)
                 timings[p] = temp[0];
             else
-                timings[p] = temp.join(",");
+                timings[p] = temp;
         }
 
         // Time stamps from this phase has been exported.
