@@ -142,6 +142,8 @@ Firebug.NetExport.HARBuilder.prototype =
             this.startedDateTime = file.startTime;
         }
 
+        var phase = file.phase;
+
         // Compatibility with older versions of Firebug (no time stamp).
         if (!phase.timeStamps)
             return;
@@ -150,7 +152,6 @@ Firebug.NetExport.HARBuilder.prototype =
             this.phases = [];
 
         // Check whether time-stamps from this phase has been already exported.
-        var phase = file.phase;
         if (this.phases.indexOf(phase) != -1)
             return timings;
 
