@@ -156,37 +156,33 @@ Firebug.NetExport.HARBuilder.prototype =
             return timings;
 
         // Timings produced by console.timeStamp. This can be part of other phases too.
-        var tempTimings = {};
+        var stamps = [];
         for (var i=0; i<phase.timeStamps.length; i++)
         {
-            var timeStamp = phase.timeStamps[i];
-            if (!timeStamp.time)
+            var stamp = phase.timeStamps[i];
+            if (!stamp.time)
                 continue;
 
-            // Ignore standard timings (we exported them already)
-            var name = timeStamp.label;
-            if (name == "load" || name == "DOMContentLoaded")
+            // Ignore standard timings, they are already exported.
+            var label = stamp.label;
+            if (label == "load" || label == "DOMContentLoaded")
                 continue;
 
-            // Avoid name collisions with standard fields for provide a default name "_"
-            // and also follow HAR rule for non-standard field names.
-            name = "_" + name;
+            // Time stamps from all phases are inserted into one list (HAR doesn't know about
+            // phases). It's up to the client how to deal with it.
+            // xxxHonza: This field is non standard so far.
+            if (!timings._timeStamps)
+            {
+                timings.comment = "_timeStamps field contains timing data generated using " +
+                    "console.timeStamp() method. See Firebug documentation: " +
+                    "http://getfirebug.com/wiki/index.php/Console_API";
+                timings._timeStamps = [];
+            }
 
-            if (!tempTimings[name])
-                tempTimings[name] = [];
-
-            tempTimings[name].push(timeStamp.time - this.startedDateTime);
-        }
-
-        // Convert timing data into HAR fileds. Stamps with the same name are represented
-        // by an array with numbers.
-        for (var p in tempTimings)
-        {
-            var temp = tempTimings[p];
-            if (temp.length == 1)
-                timings[p] = temp[0];
-            else
-                timings[p] = temp;
+            timings._timeStamps.push({
+                time: stamp.time - this.startedDateTime,
+                label: label
+            });
         }
 
         // Time stamps from this phase has been exported.
