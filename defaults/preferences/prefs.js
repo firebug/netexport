@@ -36,3 +36,6 @@ pref("extensions.firebug.netexport.autoExportToServer", false);
 
 // If set to true, requests coming from BFCache will also be exported.
 pref("extensions.firebug.netexport.exportFromBFCache", false);
+
+// Specifies JSONP callback name for HAR files wrapped in a function call (JSONP, HARP)
+pref("extensions.firebug.netexport.jsonpCallback", "onInputData");

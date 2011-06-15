@@ -47,7 +47,7 @@ Firebug.NetExport = extend(Firebug.Module,
             "netExportOptions", "netExportLogDir", "netExportHelp",
             "netExportAbout", "netExportShowPreview", "netRunPageSuite",
             "netExportSaveAs", "netExportScreenCopy", "netExportSaveFiles",
-            "netExportAutoOption"];
+            "netExportAutoOption", "netExportSaveAsJsonp"];
 
         for (var i=0; i<elements.length; i++)
         {
@@ -98,7 +98,13 @@ Firebug.NetExport = extend(Firebug.Module,
     // Handle Export toolbar button.
     exportData: function(context)
     {
-        this.Exporter.exportData(context);
+        this.Exporter.exportData(context, false);
+    },
+
+    // Handle Export toolbar button.
+    exportDataJsonp: function(context)
+    {
+        this.Exporter.exportData(context, true);
     },
 
     // Handle Import toolbar button.

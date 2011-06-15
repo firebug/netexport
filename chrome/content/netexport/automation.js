@@ -160,7 +160,8 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
         var filePath = file.path;
 
         // Export data from the current context.
-        Firebug.NetExport.Exporter.saveToFile(file, jsonString, context);
+        // xxxHonza: what about JSONP support for auto export?
+        Firebug.NetExport.Exporter.saveToFile(file, jsonString, context, false);
 
         if (FBTrace.DBG_NETEXPORT)
             FBTrace.sysout("netexport.Automation; PAGE EXPORTED: " + filePath);

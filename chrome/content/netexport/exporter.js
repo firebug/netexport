@@ -59,7 +59,7 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
             $STR("netexport.menu.tooltip.disabled.Save_Files"));
     },
 
-    exportData: function(context)
+    exportData: function(context, jsonp)
     {
         if (!context)
             return;
@@ -79,7 +79,7 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
         if (numberOfRequests > 0)
         {
             // Get target file for exported data. Bail out, if the user presses cancel.
-            var file = this.getTargetFile(context);
+            var file = this.getTargetFile(context, jsonp);
             if (!file)
                 return;
         }
@@ -91,14 +91,30 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
         if (!jsonString)
             return;
 
-        if (!this.saveToFile(file, jsonString, context))
+        // Remember the original JSON for the viewer (in case it's changed to JSONP)
+        var jsonStringForViewer = jsonString;
+
+        // If JSONP is wanted, wrap the string in a function call
+        if (jsonp)
+        {
+            var callbackName = Firebug.getPref(prefDomain, "jsonpCallback");
+
+            // This callback name is also used in HAR Viewer by default.
+            // http://www.softwareishard.com/har/viewer/
+            if (!callbackName)
+                callbackName = "onInputData";
+
+            jsonString = callbackName + "(" + jsonString + ");";
+        }
+
+        if (!this.saveToFile(file, jsonString, context, jsonp))
             return;
 
         if (Firebug.getPref(prefDomain, "showPreview"))
         {
             var viewerURL = Firebug.getPref(prefDomain, "viewerURL");
             if (viewerURL)
-                Firebug.NetExport.ViewerOpener.openViewer(viewerURL, jsonString);
+                Firebug.NetExport.ViewerOpener.openViewer(viewerURL, jsonStringForViewer);
         }
 
         // Save files
@@ -220,16 +236,17 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
     },
 
     // Open File Save As dialog and let the user to pick proper file location.
-    getTargetFile: function(context)
+    getTargetFile: function(context, jsonp)
     {
         var nsIFilePicker = Ci.nsIFilePicker;
         var fp = CCIN("@mozilla.org/filepicker;1", "nsIFilePicker");
         fp.init(window, null, nsIFilePicker.modeSave);
-        fp.appendFilter("HTTP Archive Files","*.har; *.json; *.zip");
+        fp.appendFilter("HTTP Archive Files","*.har; *.harp; *.json; *.zip");
         fp.appendFilters(nsIFilePicker.filterAll | nsIFilePicker.filterText);
         fp.filterIndex = 1;
 
-        var defaultFileName = this.getDefaultFileName(context) + ".har";
+        var extension = jsonp ? ".harp" : ".har";
+        var defaultFileName = this.getDefaultFileName(context) + extension;
 
         // Default file extension is zip if compressing is on.
         if (Firebug.getPref(prefDomain, "compress"))
@@ -294,8 +311,10 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
     },
 
     // Save JSON string into a file.
-    saveToFile: function(file, jsonString, context)
+    saveToFile: function(file, jsonString, context, jsonp)
     {
+        var extension = jsonp ? ".harp" : ".har";
+
         try
         {
             var foStream = Cc["@mozilla.org/network/file-output-stream;1"]
@@ -333,7 +352,7 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
                 FBTrace.sysout("netexport.Exporter; Zipping log file " + file.path);
 
             // Rename using unique name (the file is going to be removed).
-            file.moveTo(null, "temp" + (new Date()).getTime() + ".har");
+            file.moveTo(null, "temp" + (new Date()).getTime() + extension);
 
             // Create compressed file with the original file path name.
             var zipFile = CCIN("@mozilla.org/file/local;1", "nsILocalFile");
@@ -345,8 +364,8 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
                 fileName = fileName.substr(0, fileName.indexOf(".zip"));
 
             // But if there is no .har extension - append it.
-            if (fileName.indexOf(".har") != fileName.length - 4)
-                fileName += ".har";
+            if (fileName.indexOf(extension) != fileName.length - 4)
+                fileName += extension;
 
             var zip = new ZipWriter();
             zip.open(zipFile, 0x02 | 0x08 | 0x20); // write, create, truncate;
