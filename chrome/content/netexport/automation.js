@@ -107,7 +107,7 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
         HttpObserver.removePageObserver(win);
 
         // Tab watcher is not global in 1.7
-        var TabWatcher = Firebug.TabWatcher ? Firebug.TabWatcher : TabWatcher;
+        var TabWatcher = Firebug.TabWatcher ? Firebug.TabWatcher : top.TabWatcher;
 
         // Export current context.
         var context = TabWatcher.getContextByWindow(win);
