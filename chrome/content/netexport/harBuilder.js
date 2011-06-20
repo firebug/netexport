@@ -129,7 +129,8 @@ Firebug.NetExport.HARBuilder.prototype =
         // Put page timings into the page object when we have the first entry.
         if (!timings)
         {
-            timings = {onContentLoad: 0, onLoad: 0};
+            // The default value -1 (not available) according to the spec.
+            timings = {onContentLoad: -1, onLoad: -1};
 
             if (file.phase.contentLoadTime)
                 timings.onContentLoad = file.phase.contentLoadTime - file.startTime;
