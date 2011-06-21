@@ -144,7 +144,13 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
         }
 
         var loc = Firebug.NetExport.safeGetWindowLocation(win);
-        var fileName = (loc ? loc.host : "unknown") + "+" + now.getFullYear() + "-" +
+
+        // File name can't use ":" so, make sure it's replaced by "-" in case
+        // port number is specified in the URL (issue 4025).
+        var name = loc ? loc.host : "unknown";
+        name = name.replace(/\:/gm, "-", "");
+
+        var fileName = name + "+" + now.getFullYear() + "-" +
             f(now.getMonth()+1) + "-" + f(now.getDate()) + "+" + f(now.getHours()) + "-" +
             f(now.getMinutes()) + "-" + f(now.getSeconds());
 
