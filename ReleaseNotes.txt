@@ -3,9 +3,19 @@ Home page: http://www.softwareishard.com/blog/netexport/
 Issue list: http://code.google.com/p/fbug/issues/list
 Releases: http://getfirebug.com/releases/netexport/
 
-Release Notes for NetExport 0.8b10
----------------------------------
+Release Notes for NetExport 0.8b14
+----------------------------------
+* Issue 4025: NetExport : Har file not saved when portnumber is in the web-address
+* Issue 4544: Problem with exporting HAR to file
 
+
+Release Notes for NetExport 0.8b13
+----------------------------------
+* FIXED Issue 4544: Problem with exporting HAR to file
+
+
+Release Notes for NetExport 0.8b10
+----------------------------------
 * FIXED Issue 3763: Errors "log.entries[5].request.postData.text is missing and it is not
     optionalis missing and it is not optional" in the preview on
     http://www.softwareishard.com/har/viewer/
