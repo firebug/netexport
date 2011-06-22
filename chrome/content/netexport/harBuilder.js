@@ -388,16 +388,40 @@ Firebug.NetExport.HARBuilder.prototype =
 
     buildTimings: function(file)
     {
-        var sendStarted = (file.sendingTime > file.startTime);
-        var blockingEnd = sendStarted ? file.sendingTime : file.waitingForTime;
+        var startTime = file.startTime;
+        var resolvingTime = file.resolvingTime;
+        var connectingTime = file.connectingTime;
+        var connectedTime = file.connectedTime;
+        var sendingTime = file.sendingTime;
+        var waitingForTime = file.waitingForTime;
+        var respondedTime = file.respondedTime;
+        var endTime = file.endTime;
+
+        // Fix problem where some net events wasn't sent and some timing info
+        // wasn't updated to the last received event.
+        // This problem should be fixed in Firebug 1.8b5
+        if (connectingTime < resolvingTime)
+            connectingTime = resolvingTime;
+
+        if (connectedTime < connectingTime)
+            connectedTime = connectingTime;
+
+        if (sendingTime < connectedTime)
+            sendingTime = connectedTime;
+
+        if (waitingForTime < sendingTime)
+            waitingForTime = sendingTime;
+
+        var sendStarted = (sendingTime > startTime);
+        var blockingEnd = sendStarted ? sendingTime : waitingForTime;
 
         var timings = {};
-        timings.dns = file.connectingTime - file.startTime;
-        timings.connect = file.connectedTime - file.connectingTime;
-        timings.blocked = blockingEnd - file.connectedTime;
-        timings.send = sendStarted ? file.waitingForTime - file.sendingTime : 0;
-        timings.wait = file.respondedTime - file.waitingForTime;
-        timings.receive = file.endTime - file.respondedTime;
+        timings.dns = connectingTime - startTime;
+        timings.connect = connectedTime - connectingTime;
+        timings.blocked = blockingEnd - connectedTime;
+        timings.send = sendStarted ? waitingForTime - sendingTime : 0;
+        timings.wait = respondedTime - waitingForTime;
+        timings.receive = endTime - respondedTime;
 
         return timings;
     },
