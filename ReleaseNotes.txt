@@ -3,16 +3,19 @@ Home page: http://www.softwareishard.com/blog/netexport/
 Issue list: http://code.google.com/p/fbug/issues/list
 Releases: http://getfirebug.com/releases/netexport/
 
+Release Notes for NetExport 0.8b15
+----------------------------------
+* Issue 4555: set content.size to -1 instead of 0 where there's an error
+* Issue 4575: NetExport doesn't export all GETs
+
 Release Notes for NetExport 0.8b14
 ----------------------------------
 * Issue 4025: NetExport : Har file not saved when portnumber is in the web-address
 * Issue 4544: Problem with exporting HAR to file
 
-
 Release Notes for NetExport 0.8b13
 ----------------------------------
 * FIXED Issue 4544: Problem with exporting HAR to file
-
 
 Release Notes for NetExport 0.8b10
 ----------------------------------
@@ -21,7 +24,6 @@ Release Notes for NetExport 0.8b10
     http://www.softwareishard.com/har/viewer/
 * FIXED Issue 3962:     Auto Export Problem: Firebug 1.6.1 + Netexport 0.8b9 - by sites with
     no reachable resources
-
 
 Release Notes for NetExport 0.8b7
 ---------------------------------
