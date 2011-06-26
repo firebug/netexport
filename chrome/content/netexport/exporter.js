@@ -428,7 +428,7 @@ Firebug.NetExport.ViewerOpener =
         // The viewer is not opened yet so, open a new tab.
         if (!result)
         {
-            var tabBrowser = FBL.getTabBrowser();
+            var tabBrowser = this.getTabBrowser();
             tabBrowser.selectedTab = tabBrowser.addTab(url);
 
             if (FBTrace.DBG_NETEXPORT)
@@ -479,6 +479,11 @@ Firebug.NetExport.ViewerOpener =
         event.initMouseEvent("click", true, true, doc.defaultView, 0, 0, 0, 0, 0,
             false, false, false, false, 0, null);
         button.dispatchEvent(event);
+    },
+
+    getTabBrowser: function()
+    {
+        return top.document.getElementById("content");
     }
 };
 

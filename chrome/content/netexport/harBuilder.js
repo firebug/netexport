@@ -147,7 +147,7 @@ Firebug.NetExport.HARBuilder.prototype =
 
         // Compatibility with older versions of Firebug (no time stamp).
         if (!phase.timeStamps)
-            return;
+            return timings;
 
         if (!this.phases)
             this.phases = [];
