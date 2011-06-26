@@ -341,7 +341,7 @@ Firebug.NetExport.HARBuilder.prototype =
     {
         var content = {mimeType: ""};
         content.size = file.responseText ? file.responseText.length :
-            (file.size >= 0 ? file.size : 0);
+            (file.size >= 0 ? file.size : -1);
 
         try
         {
