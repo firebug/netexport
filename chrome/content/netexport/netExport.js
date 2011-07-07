@@ -133,7 +133,7 @@ Firebug.NetExport = extend(Firebug.Module,
     // Options
     onToggleOption: function(event, menuitem)
     {
-        FirebugChrome.onToggleOption(menuitem);
+        Firebug.chrome.onToggleOption(menuitem);
 
         // Don't bubble up so, the main command (executed when the menu-button
         // itself is pressed) is not fired.
