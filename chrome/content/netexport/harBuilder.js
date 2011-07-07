@@ -245,10 +245,11 @@ Firebug.NetExport.HARBuilder.prototype =
         var cookies = header ? header.split("; ") : [];
         for (var i=0; i<cookies.length; i++)
         {
-            var option = cookies[i].split("=");
+            var data = cookies[i];
+            var index = data.indexOf("=");
             var cookie = {};
-            cookie.name = option[0];
-            cookie.value = option[1];
+            cookie.name = data.substr(0, index);
+            cookie.value = data.substr(index+1);
             result.push(cookie);
         }
 
