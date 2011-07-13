@@ -413,18 +413,33 @@ Firebug.NetExport.HARBuilder.prototype =
         if (waitingForTime < sendingTime)
             waitingForTime = sendingTime;
 
-        var sendStarted = (sendingTime > startTime);
-        var blockingEnd = sendStarted ? sendingTime : waitingForTime;
+        var blockingEnd = this.getBlockingEndTime(file);
 
         var timings = {};
-        timings.dns = connectingTime - startTime;
+        timings.blocked = blockingEnd - startTime;
+        timings.dns = connectingTime - resolvingTime;
         timings.connect = connectedTime - connectingTime;
-        timings.blocked = blockingEnd - connectedTime;
-        timings.send = sendStarted ? waitingForTime - sendingTime : 0;
+        timings.send = (sendingTime > startTime) ? waitingForTime - sendingTime : 0;
         timings.wait = respondedTime - waitingForTime;
         timings.receive = endTime - respondedTime;
 
         return timings;
+    },
+
+    // xxxHonza: duplicated in NetUtils
+    getBlockingEndTime: function(file)
+    {
+        if (file.resolveStarted)
+            return file.resolvingTime;
+
+        if (file.connectStarted)
+            return file.connectingTime;
+
+        if (file.sendStarted)
+            return file.sendingTime;
+
+        // This is how blocking end was computed before Firebug 1.8b6
+        return (file.sendingTime > file.startTime) ? file.sendingTime : file.waitingForTime;
     },
 
     getHttpVersion: function(request, forRequest)
