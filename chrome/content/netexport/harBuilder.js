@@ -321,7 +321,7 @@ Firebug.NetExport.HARBuilder.prototype =
 
         // Arbitary value if it's aborted to make sure status has a number
         if (file.responseStatus)
-            response.status = file.responseStatus;
+            response.status = parseInt(file.responseStatus);
 
         response.statusText = file.responseStatusText;
         response.httpVersion = this.getHttpVersion(file.request, false);
