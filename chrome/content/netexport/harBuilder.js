@@ -418,8 +418,8 @@ Firebug.NetExport.HARBuilder.prototype =
         var timings = {};
         timings.blocked = blockingEnd - startTime;
         timings.dns = connectingTime - resolvingTime;
-        timings.connect = connectedTime - connectingTime;
-        timings.send = (sendingTime > startTime) ? waitingForTime - sendingTime : 0;
+        timings.connect = sendingTime - connectingTime;
+        timings.send = waitingForTime - sendingTime;
         timings.wait = respondedTime - waitingForTime;
         timings.receive = endTime - respondedTime;
 
