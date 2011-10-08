@@ -429,7 +429,7 @@ Firebug.NetExport.HARBuilder.prototype =
     // xxxHonza: duplicated in NetUtils
     getBlockingEndTime: function(file)
     {
-        if (file.resolveStarted)
+        if (file.resolveStarted && file.connectStarted)
             return file.resolvingTime;
 
         if (file.connectStarted)

@@ -129,6 +129,14 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
         // Send collected data to the server.
         if (Firebug.getPref(prefDomain, "autoExportToServer"))
             Firebug.NetExport.HARUploader.upload(context, false, false, jsonString);
+
+        //xxxHonza: should preview be used for automation?
+        /*if (Firebug.getPref(prefDomain, "showPreview"))
+        {
+            var viewerURL = Firebug.getPref(prefDomain, "viewerURL");
+            if (viewerURL)
+                Firebug.NetExport.ViewerOpener.openViewer(viewerURL, jsonString);
+        }*/
     },
 
     exportToFile: function(win, jsonString, context)
