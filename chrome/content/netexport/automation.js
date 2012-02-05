@@ -2,6 +2,8 @@
 
 FBL.ns(function() { with (FBL) {
 
+// ********************************************************************************************* //
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
@@ -13,7 +15,7 @@ var prefDomain = "extensions.firebug.netexport";
 Components.utils["import"]("resource://firebug/firebug-http-observer.js");
 var httpObserver = httpRequestObserver;
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 // Controller for automatic export.
 
 /**
@@ -182,7 +184,7 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
     }
 });
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 
 /**
  * @class This object is created for a top level window that is being loaded. All requests
@@ -203,6 +205,11 @@ Firebug.NetExport.PageLoadObserver = function(win)
     this.painted = false;
 
     this.registerForWindowLoad();
+
+    // This timeout causes the page to be exported even if it's not fully loaded yet.
+    var time = Firebug.getPref(prefDomain, "timeout");
+    if (time > 0)
+        this.absoluteTimeout = setTimeout(bindFixed(this.onAbsoluteTimeout, this), time);
 }
 
 Firebug.NetExport.PageLoadObserver.prototype =
@@ -255,6 +262,15 @@ Firebug.NetExport.PageLoadObserver.prototype =
         // If no reqeusts appeared, the page is loaded.
         if (this.requests.length == 0)
             HttpObserver.onPageLoaded(this.window);
+    },
+
+    // Absolute timout used to export pages that never finish loading.
+    onAbsoluteTimeout: function()
+    {
+        if (FBTrace.DBG_NETEXPORT)
+            FBTrace.sysout("netexport.onAbsoluteTimeout; Export now!");
+
+        HttpObserver.onPageLoaded(this.window);
     },
 
     // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
@@ -332,6 +348,9 @@ Firebug.NetExport.PageLoadObserver.prototype =
 
         try
         {
+            clearTimeout(this.absoluteTimeout);
+            delete this.absoluteTimeout;
+
             clearTimeout(this.timeout);
             delete this.timeout;
 
@@ -350,7 +369,7 @@ Firebug.NetExport.PageLoadObserver.prototype =
     },
 };
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 // HTTP Observer
 
 /**
@@ -625,7 +644,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
     },
 });
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 
 Firebug.NetExport.Logger =
 {
@@ -668,7 +687,7 @@ Firebug.NetExport.Logger =
     },
 }
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 // Shortcuts for this namespace
 
 var Automation = Firebug.NetExport.Automation;
@@ -676,9 +695,9 @@ var HttpObserver = Firebug.NetExport.HttpObserver;
 var PageLoadObserver = Firebug.NetExport.PageLoadObserver;
 var Logger = Firebug.NetExport.Logger;
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 
 Firebug.registerModule(Firebug.NetExport.Automation);
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 }});
