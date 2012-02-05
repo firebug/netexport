@@ -85,6 +85,11 @@
                             </menu>
                             <menuseparator id="netExportOptionsSeparator" />
 
+                            <menuitem id="netExportOpenLogDir"
+                                label="netexport.menu.label.OpenLogDir"
+                                tooltiptext="netexport.menu.tooltip.OpenLogDir"
+                                oncommand="Firebug.NetExport.onOpenLogDir(event)" />
+
                             <!--<menuitem id="netRunPageSuite"
                                 label="netexport.menu.label.Run Automated Loads"
                                 tooltiptext="netexport.menu.tooltip.Run Automated Loads"

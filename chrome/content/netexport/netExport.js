@@ -47,7 +47,7 @@ Firebug.NetExport = extend(Firebug.Module,
             "netExportOptions", "netExportLogDir", "netExportHelp",
             "netExportAbout", "netExportShowPreview", "netRunPageSuite",
             "netExportSaveAs", "netExportScreenCopy", "netExportSaveFiles",
-            "netExportAutoOption", "netExportSaveAsJsonp"];
+            "netExportAutoOption", "netExportSaveAsJsonp", "netExportOpenLogDir"];
 
         for (var i=0; i<elements.length; i++)
         {
@@ -174,6 +174,20 @@ Firebug.NetExport = extend(Firebug.Module,
             this.Automation.deactivate();
         else
             this.Automation.activate();
+    },
+
+    onOpenLogDir: function(event)
+    {
+        cancelEvent(event);
+
+        var logDir = Firebug.NetExport.Logger.getDefaultFolder();
+        if (!logDir.exists())
+           logDir.create(Ci.nsIFile.DIRECTORY_TYPE, 0777);
+
+        var path = logDir.QueryInterface(Ci.nsILocalFile).path;
+        var fileLocal = Cc["@mozilla.org/file/local;1"].getService(Ci.nsILocalFile);
+        fileLocal.initWithPath(path);
+        fileLocal.launch();
     },
 
     onHelp: function(event)
