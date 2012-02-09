@@ -73,21 +73,39 @@ Firebug.NetExport.HARBuilder.prototype =
 
         // Page title and ID comes from a document object that is shared by
         // all requests executed by the same page (since Firebug 1.5b1).
-        var pageId = file.document.id;
-        var title = file.document.title;
+        var doc = this.getTopDocument(file);
+        var pageId = doc.id;
+        var title = doc.title;
 
         page.id = "page_" + (pageId ? pageId : "0");
         page.title = title ? title : this.context.getTitle();
         return page;
     },
 
+    getTopDocument: function(file)
+    {
+        // Always get ID of the top document, not a document that comes from
+        // and iframe. Otherwise, inner frames would be exported as separated
+        // pages, see Issue 5153
+        var doc = file.document;
+        while (doc.parent)
+            doc = doc.parent;
+
+        return doc;
+    },
+
     getPage: function(log, file)
     {
-        var page = this.pageMap[file.document.id];
+        var doc = this.getTopDocument(file);
+
+        var page = this.pageMap[doc.id];
         if (page)
             return page;
 
-        this.pageMap[file.document.id] = page = this.buildPage(file);
+        if (FBTrace.DBG_NETEXPORT)
+            FBTrace.sysout("netexport.getPage; " + doc.id);
+
+        this.pageMap[doc.id] = page = this.buildPage(file);
         log.pages.push(page); 
 
         return page;
