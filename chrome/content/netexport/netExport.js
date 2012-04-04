@@ -264,14 +264,20 @@ Firebug.NetExport.NetPanelScreenCopier =
             var width = panelNode.scrollWidth;
 
             var canvas = this.getCanvasFromWindow(win, width, height);
-            var image = window.content.document.createElement("img");
+            var image = context.window.document.createElement("img");
             image.setAttribute("style", "display: none");
             image.setAttribute("id", "screengrab_buffer");
             image.setAttribute("src", canvas.toDataURL("image/png", ""));
 
-            var body = window.content.document.getElementsByTagName("html")[0];
+            var body = context.window.document.documentElement;
             body.appendChild(image);
-            setTimeout(this.copyImage(image, body, document), 200);
+
+            // We need the original browser.xul, cmd_copyImageContents command
+            // will be executed on it after timeout.
+            var browser = FBL.getCurrentBrowser();
+            var doc = browser.ownerDocument;
+
+            setTimeout(this.copyImage(image, body, doc), 200);
         }
         catch (err)
         {
@@ -285,11 +291,11 @@ Firebug.NetExport.NetPanelScreenCopier =
         }
     },
 
-    copyImage : function(image, body, documenty)
+    copyImage : function(image, body, doc)
     {
         return function ()
         {
-            documenty.popupNode = image;
+            doc.popupNode = image;
             try {
                 goDoCommand("cmd_copyImageContents");
             } catch (ex) {
