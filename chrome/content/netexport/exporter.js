@@ -325,10 +325,20 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
             var convertor = Cc["@mozilla.org/intl/converter-output-stream;1"]
                 .createInstance(Ci.nsIConverterOutputStream);
 
-            // Write JSON data.
             convertor.init(foStream, "UTF-8", 0, 0);
-            convertor.writeString(jsonString);
-            convertor.close(); // this closes foStream
+
+            // The entire jsonString can be huge so, write the data in chunks.
+            var chunkLength = 1024*1204;
+            for (var i=0; i<=jsonString.length; i++)
+            {
+                var data = jsonString.substr(i, chunkLength+1);
+                if (data)
+                    convertor.writeString(data);
+                i = i + chunkLength;
+            }
+
+            // this closes foStream
+            convertor.close();
         }
         catch (err)
         {
