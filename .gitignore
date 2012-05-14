@@ -1,0 +1,28 @@
+
+# Junk that could exist anywhere:
+.DS_Store
+*.swp
+*.tmp
+.*.gz
+
+# Temporary files created by Eclipse
+.tmp*
+
+# Editor junk
+*.project
+/.pydevproject
+/.settings/
+/.settings.xml
+/.settings.xml.old
+/.idea/
+
+# Build Files
+/build/
+/release/
+*.graphml
+
+# Files from NPM
+/node_modules/
+
+# Extensions
+netexport@getfirebug.com
