@@ -124,6 +124,10 @@ Firebug.NetExport.HARBuilder.prototype =
         entry.cache = this.buildCache(file);
         entry.timings = this.buildTimings(file);
 
+        // Debugging purposes, see issue 5125
+        entry._timings = file._timings;
+        entry._startedDateTime= file._startTime;
+
         // Remote IP address and port number are accessible in Firefox 5.
         if (file.remoteAddress)
             entry.serverIPAddress = file.remoteAddress;
