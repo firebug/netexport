@@ -536,7 +536,7 @@ function dateToJSON(date)
         return s;
     }
 
-    var result = date.getUTCFullYear() + '-' +
+    var result = date.getFullYear() + '-' +
         f(date.getMonth() + 1) + '-' +
         f(date.getDate()) + 'T' +
         f(date.getHours()) + ':' +
