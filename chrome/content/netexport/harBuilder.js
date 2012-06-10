@@ -545,10 +545,13 @@ function dateToJSON(date)
         f(date.getMilliseconds(), 3);
 
     var offset = date.getTimezoneOffset();
+    var positive = offset > 0;
+
+    // Convert to positive number before using Math.floor (see issue 5512)
+    offset = Math.abs(offset);
     var offsetHours = Math.floor(offset / 60);
     var offsetMinutes = Math.floor(offset % 60);
-    var prettyOffset = (offset > 0 ? "-" : "+") +
-        f(Math.abs(offsetHours)) + ":" + f(Math.abs(offsetMinutes));
+    var prettyOffset = (positive > 0 ? "-" : "+") + f(offsetHours) + ":" + f(offsetMinutes);
 
     return result + prettyOffset;
 }
