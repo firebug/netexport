@@ -283,6 +283,8 @@ Firebug.NetExport.HARBuilder.prototype =
         for (var i=0; i<cookies.length; i++)
         {
             var cookie = this.parseCookieFromResponse(cookies[i]);
+            if (!cookie.domain) 
+                cookie.domain = file.request.URI.host;
             result.push(cookie);
         }
 
@@ -292,11 +294,12 @@ Firebug.NetExport.HARBuilder.prototype =
     parseCookieFromResponse: function(string)
     {
         var cookie = new Object();
-        var pairs = string.split("; ");
+        var pairs = string.split(";");
 
         for (var i=0; i<pairs.length; i++)
         {
-            var option = pairs[i].split("=");
+            var pair = FBL.trim(pairs[i]);
+            var option = pair.split("=");
             if (i == 0)
             {
                 cookie.name = option[0];
@@ -314,6 +317,10 @@ Firebug.NetExport.HARBuilder.prototype =
                     var value = option[1];
                     value = value.replace(/-/g, " ");
                     cookie[name] = dateToJSON(new Date(value.replace(/-/g, " ")));
+                }
+                else if (name == "secure")
+                {
+                    cookie.secure = true;
                 }
                 else
                 {
