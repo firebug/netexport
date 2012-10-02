@@ -297,6 +297,10 @@ Firebug.NetExport.PageLoadObserver.prototype =
     {
         if (event.type == "load")
         {
+            // Ignore iframes
+            if (event.target.defaultView != this.window)
+                return;
+
             if (FBTrace.DBG_NETEXPORT)
                 FBTrace.sysout("netexport.PageLoadObserver; 'load': " +
                     safeGetWindowLocation(this.window));
@@ -307,6 +311,10 @@ Firebug.NetExport.PageLoadObserver.prototype =
         }
         else if (event.type == "MozAfterPaint")
         {
+            // Ignore iframes
+            if (event.target != this.window)
+                return;
+
             if (FBTrace.DBG_NETEXPORT)
                 FBTrace.sysout("netexport.PageLoadObserver; 'MozAfterPaint': " +
                     safeGetWindowLocation(this.window));
