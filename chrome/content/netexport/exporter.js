@@ -2,6 +2,9 @@
 
 FBL.ns(function() { with (FBL) {
 
+// ********************************************************************************************* //
+// Constants
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
@@ -14,9 +17,14 @@ const ZipWriter = Components.Constructor("@mozilla.org/zipwriter;1", "nsIZipWrit
 const harVersion = "1.1";
 const prefDomain = "extensions.firebug.netexport";
 
-// ************************************************************************************************
+// ********************************************************************************************* //
+// Implementation
 
+/**
+ * @module This object is reponsible for storing data into a file.
+ */
 Firebug.NetExport.Exporter = extend(Firebug.Module,
+/** @lends Firebug.NetExport.Exporter */
 {
     DTA: null,
     dispatchName: "netExportExporter",
@@ -399,7 +407,7 @@ Firebug.NetExport.Exporter = extend(Firebug.Module,
     },
 });
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 // Viewer Opener
 
 Firebug.NetExport.ViewerOpener =
@@ -429,7 +437,11 @@ Firebug.NetExport.ViewerOpener =
                     self.click($("appendPreview", win.document));
 
                     if (FBTrace.DBG_NETEXPORT)
-                        FBTrace.sysout("netExport.openViewer; Select an existing tab", tabBrowser);
+                    {
+                        FBTrace.sysout("netExport.openViewer; Select an existing tab",
+                            tabBrowser);
+                    }
+
                     return true;
                 }
             })
@@ -497,10 +509,10 @@ Firebug.NetExport.ViewerOpener =
     }
 };
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 // Registration
 
 Firebug.registerModule(Firebug.NetExport.Exporter);
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 }});

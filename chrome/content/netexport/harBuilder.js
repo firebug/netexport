@@ -2,6 +2,9 @@
 
 FBL.ns(function() { with (FBL) {
 
+// ********************************************************************************************* //
+// Constants
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
@@ -10,15 +13,19 @@ const appInfo = Cc["@mozilla.org/xre/app-info;1"].getService(Ci.nsIXULAppInfo);
 const harVersion = "1.1";
 var prefDomain = "extensions.firebug.netexport";
 
-// ************************************************************************************************
-// HAR builder implementation
+// ********************************************************************************************* //
+// HAR Builder Implementation
 
 Firebug.NetExport.HARBuilder = function()
 {
     this.pageMap = [];
 }
 
+/**
+ * This object is reponsible for building the result JSON/HAR structure.
+ */
 Firebug.NetExport.HARBuilder.prototype =
+/** @lends Firebug.NetExport.HARBuilder */
 {
     build: function(context)
     {
@@ -493,7 +500,7 @@ Firebug.NetExport.HARBuilder.prototype =
     },
 }
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 // Helpers
 
 // xxxHonza: duplicated in net.js
@@ -563,5 +570,5 @@ function dateToJSON(date)
     return result + prettyOffset;
 }
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 }});

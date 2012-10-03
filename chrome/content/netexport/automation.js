@@ -3,6 +3,7 @@
 FBL.ns(function() { with (FBL) {
 
 // ********************************************************************************************* //
+// Constants
 
 const Cc = Components.classes;
 const Ci = Components.interfaces;
@@ -610,7 +611,10 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
             catch (err)
             {
                 if (FBTrace.DBG_NETEXPORT || FBTrace.DBG_ERRORS)
-                    FBTrace.sysout("netexport.NetHttpActivityObserver; Activity Observer EXCEPTION", err);
+                {
+                    FBTrace.sysout("netexport.NetHttpActivityObserver; " +
+                        "Activity Observer EXCEPTION", err);
+                }
             }
         }
         return this.activityDistributor;

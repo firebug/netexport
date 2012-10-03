@@ -2,6 +2,9 @@
 
 FBL.ns(function() { with (FBL) {
 
+// ********************************************************************************************* //
+// Constants
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
@@ -10,9 +13,14 @@ const prompts = CCSV("@mozilla.org/embedcomp/prompt-service;1", "nsIPromptServic
 const prefDomain = "extensions.firebug.netexport";
 var sendToConfirmation = "sendToConfirmation";
 
-// ************************************************************************************************
+// ********************************************************************************************* //
+// Implementation
 
+/**
+ * This object is reponsible for uploading the result HAR file to a server.
+ */
 Firebug.NetExport.HARUploader =
+/** @lends Firebug.NetExport.HARUploader */
 {
     upload: function(context, confirm, async, jsonString)
     {
@@ -65,7 +73,8 @@ Firebug.NetExport.HARUploader =
     }
 }
 
-// ************************************************************************************************
+// ********************************************************************************************* //
+// Uploader Implementation
 
 function Uploader(serverURL, pageURL, async)
 {
@@ -76,7 +85,11 @@ function Uploader(serverURL, pageURL, async)
     this.async = async;
 }
 
+/**
+ * An instance of an upload. There can be more instances (uploads in progress) at the same time.
+ */
 Uploader.prototype =
+/** @lends Uploader */
 {
     start: function(jsonString)
     {
@@ -219,7 +232,7 @@ Uploader.prototype =
     }
 };
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 
 function insertAfter(newElement, targetElement)
 {
@@ -231,5 +244,5 @@ function insertAfter(newElement, targetElement)
         parent.insertBefore(newElement, targetElement.nextSibling);
 }
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 }});

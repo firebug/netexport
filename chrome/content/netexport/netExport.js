@@ -2,6 +2,9 @@
 
 FBL.ns(function() { with (FBL) {
 
+// ********************************************************************************************* //
+// Constants
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
@@ -10,8 +13,8 @@ const clipboardHelper = CCSV("@mozilla.org/widget/clipboardhelper;1", "nsIClipbo
 
 var prefDomain = "extensions.firebug.netexport";
 
-// ************************************************************************************************
-// Module implementation
+// ********************************************************************************************* //
+// Module Implementation
 
 /**
  * This module implements an Export feature that allows to save all Net panel
@@ -19,6 +22,7 @@ var prefDomain = "extensions.firebug.netexport";
  * http://groups.google.com/group/firebug-working-group/web/http-tracing---export-format
  */
 Firebug.NetExport = extend(Firebug.Module,
+/** @lends Firebug.NetExport */
 {
     dispatchName: "netExport",
 
@@ -242,7 +246,7 @@ Firebug.NetExport = extend(Firebug.Module,
     }
 });
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 
 Firebug.NetExport.NetPanelScreenCopier =
 {
@@ -328,7 +332,8 @@ Firebug.NetExport.NetPanelScreenCopier =
     }
 };
 
-// ************************************************************************************************
+// ********************************************************************************************* //
+// TraceListener Implementation
 
 Firebug.NetExport.TraceListener =
 {
@@ -349,7 +354,7 @@ Firebug.NetExport.TraceListener =
     }
 };
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 // Shared functions for NetExport extension.
 
 Firebug.NetExport.safeGetWindowLocation = function(win)
@@ -379,11 +384,11 @@ Firebug.NetExport.safeGetWindowLocation = function(win)
     return null;
 }
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 // Registration
 
 Firebug.registerStringBundle("chrome://netexport/locale/netExport.properties");
 Firebug.registerModule(Firebug.NetExport);
 
-// ************************************************************************************************
+// ********************************************************************************************* //
 }});

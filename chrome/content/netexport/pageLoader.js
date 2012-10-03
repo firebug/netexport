@@ -2,6 +2,9 @@
 
 FBL.ns(function() { with (FBL) {
 
+// ********************************************************************************************* //
+// Constants
+
 const Cc = Components.classes;
 const Ci = Components.interfaces;
 
@@ -12,7 +15,11 @@ var prefDomain = "extensions.firebug.netexport";
 // ********************************************************************************************* //
 // Automated load of a page suite
 
+/**
+ * @module This object allows to run a list of sites specified in sites.txt file.
+ */
 Firebug.NetExport.PageLoader = extend(Firebug.Module,
+/** @lends Firebug.NetExport.PageLoader */
 {
     currentSuite: null,
     dispatchName: "netExportPageLoader",
@@ -160,6 +167,7 @@ Firebug.NetExport.PageSuite.prototype =
 var PageSuite = Firebug.NetExport.PageSuite;
 
 // ********************************************************************************************* //
+// Registration
 
 Firebug.registerModule(Firebug.NetExport.PageLoader);
 
