@@ -373,8 +373,11 @@ Firebug.NetExport.HARBuilder.prototype =
     buildContent: function(file)
     {
         var content = {mimeType: ""};
-        content.size = file.responseText ? file.responseText.length :
-            (file.size >= 0 ? file.size : -1);
+
+        var responseText = (typeof(file.responseText) != "undefined") ?
+            file.responseText : this.context.sourceCache.loadText(file.href, file.method, file);
+
+        content.size = responseText ? responseText.length : (file.size >= 0 ? file.size : 0);
 
         try
         {
@@ -386,8 +389,8 @@ Firebug.NetExport.HARBuilder.prototype =
                 FBTrace.sysout("netexport.buildContent EXCEPTION", e);
         }
 
-        if (file.responseText)
-            content.text = file.responseText;
+        if (responseText)
+            content.text = responseText;
 
         return content;
     },
