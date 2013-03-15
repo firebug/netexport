@@ -204,6 +204,7 @@ Firebug.NetExport.PageLoadObserver = function(win)
     // These must be true in order to declare the window loaded.
     this.loaded = false;
     this.painted = false;
+    this.created = false;
 
     this.registerForWindowLoad();
 
@@ -253,8 +254,10 @@ Firebug.NetExport.PageLoadObserver.prototype =
 
         // 3) The page is loaded if there is no new request after specified timeout.
         // extensions.firebug.netexport.pageLoadedTimeout
-        this.timeout = setTimeout(bindFixed(this.onPageLoaded, this),
-            Firebug.getPref(prefDomain, "pageLoadedTimeout"));
+        var timeout = Firebug.getPref(prefDomain, "pageLoadedTimeout");
+        if (timeout > 0)
+            this.timeout = setTimeout(bindFixed(this.onPageLoaded, this),
+                                      timeout);
     },
 
     // Called after timeout when there is no other request.
@@ -290,13 +293,64 @@ Firebug.NetExport.PageLoadObserver.prototype =
         return null;
     },
 
+    insertHelperFunctions: function(win)
+    {
+        token = Firebug.getPref(prefDomain, "secretToken");
+        if (token == "")
+            return;
+
+        var _this = this;
+        var once = false;
+        var functions = {
+            triggerExport: function() {
+                if (FBTrace.DBG_NETEXPORT)
+                    FBTrace.sysout("netexport.Automation; " +
+                                   "user triggered export");
+                if (!once) {
+                    once = true;
+                    HttpObserver.onPageLoaded(win);
+                } else if (FBTrace.DBG_NETEXPORT)
+                    FBTrace.sysout("netexport.Automation; " +
+                                   "user already triggered export");
+            },
+        };
+        var props = {};
+        var protectedFunctions = {};
+        var protect = function(f) {
+            return function(t) {
+                if (t !== token && FBTrace.DBG_NETEXPORT) {
+                    FBTrace.sysout("netexport.Automation; " +
+                                   "invalid token");
+                    return undefined;
+                }
+                return f;
+            };
+        };
+        for (var f in functions) {
+            props[f] = "r";
+            protectedFunctions[f] = protect(functions[f]);
+        }
+        if (FBTrace.DBG_NETEXPORT)
+            FBTrace.sysout("netexport.Automation; " +
+                           "helper functions exported to window");
+        protectedFunctions.__exposedProps__ = props;
+        win.wrappedJSObject.NetExport = protectedFunctions;
+    },
+
     // Wait for all event that must be fired before the window is loaded.
     // Any event is missing?
     // xxxHonza: In case of Firefox 3.7 the new 'content-document-global-created'
     // (bug549539) could be utilized.
     onEvent: function(event)
     {
-        if (event.type == "load")
+        if (event.type == "DOMWindowCreated")
+        {
+            this.insertHelperFunctions(this.window);
+            var browser = this.getBrowserByWindow(this.window);
+            browser.removeEventListener("DOMContentLoaded", this.onEventHandler, true);
+            this.created = true;
+        }
+        else if (event.type == "load")
         {
             // Ignore iframes
             if (event.target.defaultView != this.window)
@@ -343,6 +397,7 @@ Firebug.NetExport.PageLoadObserver.prototype =
         this.onEventHandler = bind(this.onEvent, this);
 
         var browser = this.getBrowserByWindow(this.window);
+        browser.addEventListener("DOMWindowCreated", this.onEventHandler, true);
         browser.addEventListener("load", this.onEventHandler, true);
         browser.addEventListener("MozAfterPaint", this.onEventHandler, true);
     },
@@ -364,6 +419,9 @@ Firebug.NetExport.PageLoadObserver.prototype =
             delete this.timeout;
 
             var browser = this.getBrowserByWindow(this.window);
+            if (!this.created)
+                browser.removeEventListener("DOMWindowCreated",
+                                            this.onEventHandler, true);
             if (!this.loaded)
                 browser.removeEventListener("load", this.onEventHandler, true);
 
