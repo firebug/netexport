@@ -321,9 +321,13 @@ Firebug.NetExport.PageLoadObserver.prototype =
                 if (t !== token && FBTrace.DBG_NETEXPORT) {
                     FBTrace.sysout("netexport.Automation; " +
                                    "invalid token");
-                    return undefined;
+                    throw {
+                        name:    "Invalid security token",
+                        message: "The provided security token is incorrect"
+                    };
                 }
-                return f;
+                var args = Array.prototype.slice.call(arguments, 1);
+                return f.apply(this, args);
             };
         };
         for (var f in functions) {
