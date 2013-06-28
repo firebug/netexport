@@ -21,7 +21,7 @@ const prefDomain = "extensions.firebug.netexport";
 // Implementation
 
 /**
- * @module This object is reponsible for storing data into a file.
+ * @module This object is responsible for storing data into a file.
  */
 Firebug.NetExport.Exporter = extend(Firebug.Module,
 /** @lends Firebug.NetExport.Exporter */

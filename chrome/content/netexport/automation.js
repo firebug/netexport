@@ -58,7 +58,7 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
         HttpObserver.removeListener(this);
     },
 
-    // Make sure the Auto Export button is properly updated withing the Net panel.
+    // Make sure the Auto Export button is properly updated within the Net panel.
     showPanel: function(browser, panel)
     {
         if (panel && panel.name == "net")
@@ -79,6 +79,10 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
         this.active = true;
         this.updateUI();
 
+        // Make sure that cache entries are fetched automatically.
+        if (Firebug.NetMonitor.NetCacheReader)
+            Firebug.NetMonitor.NetCacheReader.autoFetch = true;
+
         HttpObserver.register();
     },
 
@@ -89,6 +93,9 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
 
         this.active = false;
         this.updateUI();
+
+        if (Firebug.NetMonitor.NetCacheReader)
+            Firebug.NetMonitor.NetCacheReader.autoFetch = false;
 
         HttpObserver.unregister();
     },
