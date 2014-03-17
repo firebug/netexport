@@ -98,7 +98,9 @@ Uploader.prototype =
 
         this.request.open("POST", this.serverURL, this.async);
         this.request.setRequestHeader("Content-Type", "x-application/har+json");
-        this.request.setRequestHeader("Content-Length", jsonString.length);
+
+        // See https://github.com/firebug/netexport/issues/5
+        //this.request.setRequestHeader("Content-Length", jsonString.length);
 
         this.request.onerror = bind(this.onError, this);
         this.request.onload = bind(this.onFinished, this);

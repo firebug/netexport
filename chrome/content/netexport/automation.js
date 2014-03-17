@@ -267,12 +267,12 @@ Firebug.NetExport.PageLoadObserver.prototype =
     // Called after timeout when there is no other request.
     onPageLoaded: function()
     {
-        // If no reqeusts appeared, the page is loaded.
+        // If no requests appeared, the page is loaded.
         if (this.requests.length == 0)
             HttpObserver.onPageLoaded(this.window);
     },
 
-    // Absolute timout used to export pages that never finish loading.
+    // Absolute timeout used to export pages that never finish loading.
     onAbsoluteTimeout: function()
     {
         if (FBTrace.DBG_NETEXPORT)
@@ -332,8 +332,8 @@ Firebug.NetExport.PageLoadObserver.prototype =
             this.painted = true;
         }
 
-        // Execute callback after 100ms timout (the inspector tests need it for now),
-        // but this shoud be set to 0.
+        // Execute callback after 100ms timeout (the inspector tests need it for now),
+        // but this should be set to 0.
         if (this.loaded && this.painted)
         {
             if (FBTrace.DBG_NETEXPORT)
@@ -413,7 +413,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
 
         // Register also activity-distributor observer. This one is necessary for
         // catching ACTIVITY_SUBTYPE_TRANSACTION_CLOSE event. In the case of request
-        // timehout when none of the http-on-* requests is fired.
+        // timeout when none of the http-on-* requests is fired.
         var distributor = this.getActivityDistributor();
         if (distributor)
             distributor.addObserver(this);
@@ -651,7 +651,7 @@ Firebug.NetExport.HttpObserver = extend(new Firebug.Listener(),
             return;
 
         // In case of a request timeout we need this event to see that the
-        // transation has been actually closed (even if none of the "http-on*"
+        // transaction has been actually closed (even if none of the "http-on*"
         // events has been received.
         // This code ensures that the request is removed from the list of active
         // requests (and so we can declare "page-loaded" later - if the list is empty.
