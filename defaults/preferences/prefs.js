@@ -25,6 +25,10 @@ pref("extensions.firebug.netexport.sendToConfirmation", true);
 // Number of milliseconds to wait after the last page request to declare the page loaded.
 pref("extensions.firebug.netexport.pageLoadedTimeout", 1500);
 
+// Secret token for exporting helper functions to user window. If
+// empty, no functions are exported.
+pref("extensions.firebug.netexport.secretToken", "");
+
 // Number of milliseconds to wait after the page is exported even if not loaded yet.
 // Set to zero to switch off this feature.
 pref("extensions.firebug.netexport.timeout", 60000);
