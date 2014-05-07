@@ -360,7 +360,8 @@ Firebug.NetExport.HARBuilder.prototype =
 
         response.cookies = this.buildResponseCookies(file);
         response.headers = this.buildHeaders(file.responseHeaders);
-        response.content = this.buildContent(file);
+        if (Firebug.getPref(prefDomain, "includeResponseBodies"))
+            response.content = this.buildContent(file);
 
         response.redirectURL = findHeader(file.responseHeaders, "Location");
 

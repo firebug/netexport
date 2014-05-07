@@ -66,6 +66,11 @@
                                         tooltiptext="netexport.menu.tooltip.Compress"
                                         oncommand="Firebug.NetExport.onToggleOption(event, this)"
                                         option="netexport.compress" />
+                                    <menuitem id="netExportIncludeResponseBodies" type="checkbox"
+                                        label="netexport.menu.label.includeResponseBodies"
+                                        tooltiptext="netexport.menu.tooltip.includeResponseBodies"
+                                        oncommand="Firebug.NetExport.onToggleOption(event, this)"
+                                        option="netexport.includeResponseBodies" />
                                     <menuitem id="netExportShowPreview" type="checkbox"
                                         label="netexport.menu.label.Show Preview"
                                         tooltiptext="netexport.menu.tooltip.Show Preview"

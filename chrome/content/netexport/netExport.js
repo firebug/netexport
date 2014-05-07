@@ -47,8 +47,8 @@ Firebug.NetExport = extend(Firebug.Module,
         if (FBTrace.DBG_NETEXPORT)
             FBTrace.sysout("netexport.internationalizeUI");
 
-        var elements = ["netExport", "netExportCompress", "netExportAuto",
-            "netExportOptions", "netExportLogDir", "netExportHelp",
+        var elements = ["netExport", "netExportCompress", "netExportIncludeResponseBodies",
+            "netExportAuto", "netExportOptions", "netExportLogDir", "netExportHelp",
             "netExportAbout", "netExportShowPreview", "netRunPageSuite",
             "netExportSaveAs", "netExportScreenCopy", "netExportSaveFiles",
             "netExportAutoOption", "netExportSaveAsJsonp", "netExportOpenLogDir"];
