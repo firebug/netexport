@@ -32,8 +32,8 @@ pref("extensions.firebug.netexport.timeout", 60000);
 // Auto export feature is enabled by default.
 pref("extensions.firebug.netexport.alwaysEnableAutoExport", false);
 
-// Secret token for exporting helper functions to user window. If
-// empty, no functions are exported.
+// Secret token for exposing export API to the content (user page).
+// If empty, no API are exposed.
 pref("extensions.firebug.netexport.secretToken", "");
 
 // Auto export feature stores results into a local file
