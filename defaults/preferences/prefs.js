@@ -19,7 +19,7 @@ pref("extensions.firebug.netexport.showPreview", true);
 // URL of the server where the collected data should be send to.
 pref("extensions.firebug.netexport.beaconServerURL", "http://www.showslow.com/beacon/har/");
 
-// Displaye confirmation before uploading collecetd data to the server yes/no.
+// Display confirmation before uploading collected data to the server yes/no.
 pref("extensions.firebug.netexport.sendToConfirmation", true);
 
 // Number of milliseconds to wait after the last page request to declare the page loaded.
@@ -31,6 +31,10 @@ pref("extensions.firebug.netexport.timeout", 60000);
 
 // Auto export feature is enabled by default.
 pref("extensions.firebug.netexport.alwaysEnableAutoExport", false);
+
+// Secret token for exporting helper functions to user window. If
+// empty, no functions are exported.
+pref("extensions.firebug.netexport.secretToken", "");
 
 // Auto export feature stores results into a local file
 pref("extensions.firebug.netexport.autoExportToFile", true);

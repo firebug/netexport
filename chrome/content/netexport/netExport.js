@@ -87,7 +87,7 @@ Firebug.NetExport = extend(Firebug.Module,
             else
                 menuItem.setAttribute("collapsed");
 
-            // Update label & tooltip so it displayes the URL.
+            // Update label & tooltip so it displays the URL.
             menuItem.setAttribute("label", $STR("netexport.menu.label.Send To") + " " + host);
             menuItem.setAttribute("tooltiptext", $STR("netexport.menu.tooltip.Send To") +
                 " " + serverURL);
@@ -206,7 +206,7 @@ Firebug.NetExport = extend(Firebug.Module,
         try
         {
             // Firefox 4.0 implements new AddonManager. In case of Firefox 3.6 the module
-            // is not avaialble and there is an exception.
+            // is not available and there is an exception.
             Components.utils["import"]("resource://gre/modules/AddonManager.jsm");
         }
         catch (err)
@@ -258,7 +258,7 @@ Firebug.NetExport.NetPanelScreenCopier =
         try
         {
             // Change Net panel styling so, even the non visible window area
-            // is drawen into an image.
+            // is drawn into an image.
             panelNode.style["overflow"] = "visible";
             panelNode.style["position"] = "relative";
 
