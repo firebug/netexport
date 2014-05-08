@@ -389,8 +389,12 @@ Firebug.NetExport.HARBuilder.prototype =
                 FBTrace.sysout("netexport.buildContent EXCEPTION", e);
         }
 
-        if (responseText)
+        var includeResponseBodies = Firebug.getPref(prefDomain, "includeResponseBodies");
+        if (responseText && includeResponseBodies)
             content.text = responseText;
+
+        if (!includeResponseBodies)
+            content.comment = $STR("netexport.export.responseBodyNotIncluded");
 
         return content;
     },

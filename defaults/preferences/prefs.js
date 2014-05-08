@@ -47,3 +47,6 @@ pref("extensions.firebug.netexport.exportFromBFCache", false);
 
 // Specifies JSONP callback name for HAR files wrapped in a function call (JSONP, HARP)
 pref("extensions.firebug.netexport.jsonpCallback", "onInputData");
+
+// Specifies whether the response bodies of requests should be included in the export
+pref("extensions.firebug.netexport.includeResponseBodies", true);
