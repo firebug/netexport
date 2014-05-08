@@ -360,8 +360,7 @@ Firebug.NetExport.HARBuilder.prototype =
 
         response.cookies = this.buildResponseCookies(file);
         response.headers = this.buildHeaders(file.responseHeaders);
-        if (Firebug.getPref(prefDomain, "includeResponseBodies"))
-            response.content = this.buildContent(file);
+        response.content = this.buildContent(file);
 
         response.redirectURL = findHeader(file.responseHeaders, "Location");
 
@@ -390,8 +389,12 @@ Firebug.NetExport.HARBuilder.prototype =
                 FBTrace.sysout("netexport.buildContent EXCEPTION", e);
         }
 
-        if (responseText)
+        var includeResponseBodies = Firebug.getPref(prefDomain, "includeResponseBodies");
+        if (responseText && includeResponseBodies)
             content.text = responseText;
+
+        if (!includeResponseBodies)
+            content.comment = $STR("netexport.export.responseBodyNotIncluded");
 
         return content;
     },
