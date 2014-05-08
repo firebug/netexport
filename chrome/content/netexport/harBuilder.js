@@ -22,7 +22,7 @@ Firebug.NetExport.HARBuilder = function()
 }
 
 /**
- * This object is reponsible for building the result JSON/HAR structure.
+ * This object is responsible for building the result JSON/HAR structure.
  */
 Firebug.NetExport.HARBuilder.prototype =
 /** @lends Firebug.NetExport.HARBuilder */
@@ -49,7 +49,7 @@ Firebug.NetExport.HARBuilder.prototype =
         panel.enumerateRequests(function(file)
         {
             // Don't export BFCache responses. These don't represent network activity.
-            // Do export if the pref says so.
+            // Do export if the preference says so.
             if (file.fromBFCache && !exportFromBFCache)
                 return;
 
@@ -154,7 +154,7 @@ Firebug.NetExport.HARBuilder.prototype =
         // Put page timings into the page object when we have the first entry.
         if (!timings)
         {
-            // The default value -1 (not available) according to the spec.
+            // The default value -1 (not available) according to the specification.
             timings = {onContentLoad: -1, onLoad: -1};
 
             if (file.phase.contentLoadTime)
@@ -351,7 +351,7 @@ Firebug.NetExport.HARBuilder.prototype =
     {
         var response = {status: 0};
 
-        // Arbitary value if it's aborted to make sure status has a number
+        // Arbitrary value if it's aborted to make sure status has a number
         if (file.responseStatus)
             response.status = parseInt(file.responseStatus);
 
@@ -516,7 +516,7 @@ function isURLEncodedFile(file, text)
     if (text && text.toLowerCase().indexOf("content-type: application/x-www-form-urlencoded") != -1)
         return true;
 
-    // The header value doesn't have to be alway exactly "application/x-www-form-urlencoded",
+    // The header value doesn't have to be always exactly "application/x-www-form-urlencoded",
     // there can be even charset specified. So, use indexOf rather than just "==".
     var headerValue = findHeader(file.requestHeaders, "content-type");
     if (headerValue && headerValue.indexOf("application/x-www-form-urlencoded") == 0)
