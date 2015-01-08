@@ -84,6 +84,73 @@ Firebug.NetExport.Automation = extend(Firebug.Module,
             Firebug.NetMonitor.NetCacheReader.autoFetch = true;
 
         HttpObserver.register();
+
+        // Expose "NetExport variable into all current contexts.
+        Firebug.connection.eachContext(context => {
+          this.exposeToContent(context.window);
+        });
+    },
+
+    exposeToContent: function(win)
+    {
+        if (FBTrace.DBG_NETEXPORT)
+            FBTrace.sysout("netexport.Automation; expose to content");
+
+        var token = Firebug.getPref(prefDomain, "secretToken");
+        if (token == "")
+            return;
+
+        var functions =
+        {
+            triggerExport: function()
+            {
+                if (FBTrace.DBG_NETEXPORT)
+                    FBTrace.sysout("netexport.Automation; user triggered export");
+
+                HttpObserver.onPageLoaded(win);
+            },
+
+            clear: function()
+            {
+                var context = TabWatcher.getContextByWindow(win);
+                if (context)
+                    Firebug.NetMonitor.clear(context);
+            }
+        };
+
+        var props = {};
+        var protectedFunctions = {};
+        var protect = function(f)
+        {
+            return function(t)
+            {
+                if (t !== token)
+                {
+                    if (FBTrace.DBG_NETEXPORT)
+                        FBTrace.sysout("netexport.Automation; invalid token");
+
+                    throw {
+                        name: "Invalid security token",
+                        message: "The provided security token is incorrect"
+                    };
+                }
+
+                var args = Array.prototype.slice.call(arguments, 1);
+                return f.apply(this, args);
+            };
+        };
+
+        for (var f in functions)
+        {
+            props[f] = "r";
+            protectedFunctions[f] = protect(functions[f]);
+        }
+
+        if (FBTrace.DBG_NETEXPORT)
+            FBTrace.sysout("netexport.Automation; helper functions exported to window");
+
+        protectedFunctions.__exposedProps__ = props;
+        win.wrappedJSObject.NetExport = protectedFunctions;
     },
 
     deactivate: function()
@@ -304,61 +371,7 @@ Firebug.NetExport.PageLoadObserver.prototype =
 
     insertHelperFunctions: function(win)
     {
-        var token = Firebug.getPref(prefDomain, "secretToken");
-        if (token == "")
-            return;
-
-        var functions =
-        {
-            triggerExport: function()
-            {
-                if (FBTrace.DBG_NETEXPORT)
-                    FBTrace.sysout("netexport.Automation; user triggered export");
-
-                HttpObserver.onPageLoaded(win);
-            },
-
-            clear: function()
-            {
-                var context = TabWatcher.getContextByWindow(win);
-                if (context)
-                    Firebug.NetMonitor.clear(context);
-            }
-        };
-
-        var props = {};
-        var protectedFunctions = {};
-        var protect = function(f)
-        {
-            return function(t)
-            {
-                if (t !== token)
-                {
-                    if (FBTrace.DBG_NETEXPORT)
-                        FBTrace.sysout("netexport.Automation; invalid token");
-
-                    throw {
-                        name: "Invalid security token",
-                        message: "The provided security token is incorrect"
-                    };
-                }
-
-                var args = Array.prototype.slice.call(arguments, 1);
-                return f.apply(this, args);
-            };
-        };
-
-        for (var f in functions)
-        {
-            props[f] = "r";
-            protectedFunctions[f] = protect(functions[f]);
-        }
-
-        if (FBTrace.DBG_NETEXPORT)
-            FBTrace.sysout("netexport.Automation; helper functions exported to window");
-
-        protectedFunctions.__exposedProps__ = props;
-        win.wrappedJSObject.NetExport = protectedFunctions;
+      Firebug.NetExport.Automation.exposeToContent(win);
     },
 
     // Wait for all event that must be fired before the window is loaded.
