@@ -1,5 +1,5 @@
-NeExport
-========
+NetExport
+=========
 
 Use this Firebug extension to export data from Firebug's Net panel.
 
